@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-ink text-cream font-sans antialiased;
+    /* Pixel grid backdrop + subtle scanlines for the retro vibe */
+    background-image:
+      theme('backgroundImage.scanlines'),
+      theme('backgroundImage.grid-pixel');
+    background-size: auto, theme('backgroundSize.grid-pixel');
+    background-attachment: fixed;
+  }
+
+  /* Sharpen pixel-art assets */
+  img,
+  svg {
+    image-rendering: pixelated;
+  }
+
+  ::selection {
+    @apply bg-tomato text-ink;
+  }
+}
+
+@layer components {
+  /* Reusable 8-bit panel with hard shadow + chunky border */
+  .pixel-panel {
+    @apply border-4 border-ink bg-ink-panel shadow-pixel;
+  }
+
+  .pixel-border {
+    @apply border-4 border-ink;
+  }
+
+  /* Pressable pixel button — sinks on active for tactile feel */
+  .pixel-btn {
+    @apply inline-flex items-center justify-center gap-2 border-4 border-ink
+           font-pixel text-[10px] uppercase tracking-tight transition-transform
+           duration-75 active:translate-x-[3px] active:translate-y-[3px]
+           active:shadow-pixel-sm;
+  }
+}
+
+/* Slim, themed scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #0d0b1f;
+}
+::-webkit-scrollbar-thumb {
+  background: #2c2550;
+  border: 2px solid #0d0b1f;
+}
