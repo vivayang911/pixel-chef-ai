@@ -9,6 +9,7 @@ interface PixelButtonProps {
   variant?: Variant
   className?: string
   type?: 'button' | 'submit'
+  disabled?: boolean
 }
 
 const variantClasses: Record<Variant, string> = {
@@ -25,14 +26,18 @@ export default function PixelButton({
   variant = 'tomato',
   className = '',
   type = 'button',
+  disabled = false,
 }: PixelButtonProps) {
   return (
     <motion.button
       type={type}
-      onClick={onClick}
-      whileHover={{ y: -2 }}
-      whileTap={{ x: 3, y: 3 }}
-      className={`pixel-btn px-5 py-3 ${variantClasses[variant]} ${className}`}
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      whileHover={disabled ? undefined : { y: -2 }}
+      whileTap={disabled ? undefined : { x: 3, y: 3 }}
+      className={`pixel-btn px-5 py-3 ${variantClasses[variant]} ${
+        disabled ? 'cursor-not-allowed opacity-40' : ''
+      } ${className}`}
     >
       {children}
     </motion.button>

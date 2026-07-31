@@ -44,7 +44,11 @@ const PARTICLES = [
   { c: 'bg-cream', x: '90%', y: '54%', s: 6 },
 ]
 
-export default function MemoryKitchen() {
+interface MemoryKitchenProps {
+  onStart?: () => void
+}
+
+export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
   return (
     <section id="top" className="relative overflow-hidden pb-12 pt-10 sm:pt-16">
       {/* Ambient floating pixel particles */}
@@ -96,7 +100,9 @@ export default function MemoryKitchen() {
             transition={{ delay: 2.2, duration: 0.5 }}
             className="mt-8 flex flex-wrap gap-4"
           >
-            <PixelButton variant="tomato">▶ Start Cooking</PixelButton>
+            <PixelButton variant="tomato" onClick={onStart}>
+              ▶ Start Cooking
+            </PixelButton>
             <PixelButton variant="ghost">Watch Demo</PixelButton>
           </motion.div>
         </div>

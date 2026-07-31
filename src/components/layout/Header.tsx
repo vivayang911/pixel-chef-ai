@@ -9,7 +9,11 @@ const NAV_LINKS = [
   { label: 'How it works', href: '#how' },
 ]
 
-export default function Header() {
+interface HeaderProps {
+  onStart?: () => void
+}
+
+export default function Header({ onStart }: HeaderProps) {
   return (
     <motion.header
       initial={{ y: -80, opacity: 0 }}
@@ -40,7 +44,7 @@ export default function Header() {
           ))}
         </nav>
 
-        <PixelButton variant="tomato" className="hidden sm:inline-flex">
+        <PixelButton variant="tomato" className="hidden sm:inline-flex" onClick={onStart}>
           Start Cooking
         </PixelButton>
       </Container>

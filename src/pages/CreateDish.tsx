@@ -1,0 +1,165 @@
+import { useMemo, useRef, useState } from 'react'
+import type { MouseEvent } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import Container from '@/components/ui/Container'
+import PixelButton from '@/components/ui/PixelButton'
+import IngredientShelf from '@/components/cooking/IngredientShelf'
+import CookingPot from '@/components/cooking/CookingPot'
+import AIAdvisor from '@/components/cooking/AIAdvisor'
+import TasteMemoryCard from '@/components/cooking/TasteMemoryCard'
+import { generateFeedback } from '@/engine/memoryEngine'
+import { INGREDIENTS, type Ingredient } from '@/types/food'
+
+interface FlyingItem {
+  key: number
+  ingredient: Ingredient
+  fromX: number
+  fromY: number
+  toX: number
+  toY: number
+}
+
+interface CreateDishProps {
+  onBack: () => void
+  onStartCooking: (dish: Ingredient[]) => void
+}
+
+const AMBIENT = [
+  { c: 'bg-tomato', x: '6%', y: '18%', s: 9 },
+  { c: 'bg-cheese', x: '92%', y: '12%', s: 8 },
+  { c: 'bg-mint', x: '88%', y: '70%', s: 10 },
+  { c: 'bg-grape', x: '4%', y: '78%', s: 7 },
+]
+
+/** The AI Memory Cooking Studio: pick ingredients, feed the pot, get memory advice. */
+export default function CreateDish({ onBack, onStartCooking }: CreateDishProps) {
+  const [selected, setSelected] = useState<Ingredient[]>([])
+  const [flying, setFlying] = useState<FlyingItem[]>([])
+  const potRef = useRef<HTMLDivElement>(null)
+  const flySeq = useRef(0)
+
+  const selectedIds = selected.map((i) => i.id)
+  const hasProtein = selected.some((i) => i.category === 'protein')
+  const ready = selected.length >= 3 && hasProtein
+  const feedback = useMemo(() => generateFeedback(selected), [selected])
+
+  function handlePick(ingredient: Ingredient, e: MouseEvent<HTMLButtonElement>) {
+    // Already in the pot → click removes it.
+    if (selectedIds.includes(ingredient.id)) {
+      setSelected((prev) => prev.filter((i) => i.id !== ingredient.id))
+      return
+    }
+    const pot = potRef.current?.getBoundingClientRect()
+    const key = ++flySeq.current
+    setFlying((prev) => [
+      ...prev,
+      {
+        key,
+        ingredient,
+        fromX: e.clientX,
+        fromY: e.clientY,
+        toX: pot ? pot.left + pot.width / 2 : window.innerWidth / 2,
+        toY: pot ? pot.top + pot.height * 0.45 : window.innerHeight / 2,
+      },
+    ])
+  }
+
+  function handleLand(item: FlyingItem) {
+    setSelected((prev) =>
+      prev.some((i) => i.id === item.ingredient.id) ? prev : [...prev, item.ingredient],
+    )
+    setFlying((prev) => prev.filter((f) => f.key !== item.key))
+  }
+
+  return (
+    <section className="relative overflow-hidden py-10 sm:py-14">
+      {/* Ambient floating pixels */}
+      {AMBIENT.map((p, i) => (
+        <motion.span
+          key={i}
+          className={`pointer-events-none absolute ${p.c}`}
+          style={{ left: p.x, top: p.y, width: p.s, height: p.s }}
+          animate={{ y: [0, -14, 0], opacity: [0.4, 0.9, 0.4] }}
+          transition={{ duration: 4 + i, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      ))}
+
+      {/* Flying ingredient layer (click point → pot) */}
+      <AnimatePresence>
+        {flying.map((f) => (
+          <motion.span
+            key={f.key}
+            className="pointer-events-none fixed left-0 top-0 z-50 text-3xl leading-none"
+            initial={{ x: f.fromX - 15, y: f.fromY - 15, scale: 0.6, rotate: 0, opacity: 0.9 }}
+            animate={{ x: f.toX - 15, y: f.toY - 15, scale: 1.4, rotate: 340, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 170, damping: 15 }}
+            onAnimationComplete={() => handleLand(f)}
+          >
+            {f.ingredient.emoji}
+          </motion.span>
+        ))}
+      </AnimatePresence>
+
+      <Container>
+        {/* Page header */}
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <PixelButton variant="ghost" onClick={onBack}>
+            ◀ Back
+          </PixelButton>
+          <motion.h1
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ type: 'spring', stiffness: 240, damping: 20 }}
+            className="font-pixel text-lg leading-relaxed text-cream sm:text-2xl"
+          >
+            AI <span className="text-tomato">COOKING</span> <span className="text-cheese">STUDIO</span>
+          </motion.h1>
+          <span className="hidden border-4 border-ink bg-grape px-3 py-1 font-pixel text-[8px] text-ink shadow-pixel-sm sm:inline-block">
+            STEP 1 · PICK
+          </span>
+        </div>
+
+        <div className="grid items-start gap-8 lg:grid-cols-[290px_1fr_320px]">
+          {/* Left: the fridge shelf */}
+          <IngredientShelf ingredients={INGREDIENTS} selectedIds={selectedIds} onPick={handlePick} />
+
+          {/* Center: the pot + start button */}
+          <div className="flex flex-col items-center gap-8">
+            <div ref={potRef} className="flex w-full justify-center">
+              <CookingPot items={selected} ready={ready} />
+            </div>
+
+            <p className="text-center font-terminal text-lg text-cream/60">
+              {selected.length} / 3+ 食材 ·{' '}
+              {hasProtein ? (
+                <span className="text-mint">✓ 蛋白质就位</span>
+              ) : (
+                <span className="text-tomato">还差 1 份蛋白质</span>
+              )}
+            </p>
+
+            <motion.div
+              animate={ready ? { scale: [1, 1.05, 1] } : { scale: 1 }}
+              transition={ready ? { duration: 1.2, repeat: Infinity } : undefined}
+            >
+              <PixelButton
+                variant="tomato"
+                disabled={!ready}
+                onClick={() => onStartCooking(selected)}
+                className="px-8 py-4 text-xs"
+              >
+                ▶ START COOKING
+              </PixelButton>
+            </motion.div>
+          </div>
+
+          {/* Right: PIXEL's brain */}
+          <div className="space-y-6">
+            <AIAdvisor feedback={feedback} />
+            <TasteMemoryCard profile={feedback.tasteProfile} />
+          </div>
+        </div>
+      </Container>
+    </section>
+  )
+}
