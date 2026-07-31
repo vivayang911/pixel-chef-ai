@@ -2,13 +2,19 @@
 
 **A Memory Kitchen That Learns Your Taste.**
 
-> Built for the **DEV Frontend Challenge** — fully client-side, zero backend, pure vibes.
+> Built for the [DEV Frontend Challenge: Comfort Food Edition](https://dev.to/challenges) — fully client-side, zero backend, pure vibes.
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black?style=flat-square)](https://your-demo-url.vercel.app)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
 ---
 
 ## Overview
 
-Pixel Chef AI is an interactive AI cooking companion that lives inside a pixel-art kitchen. You pick ingredients from the fridge, toss them into the pot, and watch a real-time cooking simulation unfold — complete with random fire events, AI chatter, and a personality engine that builds your unique Taste DNA. Every cook generates a diary entry, a timeline memory, and future recipe suggestions.
+Pixel Chef AI is an interactive AI cooking companion that lives inside a pixel-art kitchen.  
+You pick ingredients from the fridge, toss them into the pot, and watch a real-time cooking simulation unfold — complete with random fire events, AI chatter, and a personality engine that builds your unique **Taste DNA**.  
+
+Every cook generates a diary entry, a timeline memory, and future recipe suggestions. It's a small love letter to the food that makes us feel at home.
 
 ---
 
@@ -16,21 +22,21 @@ Pixel Chef AI is an interactive AI cooking companion that lives inside a pixel-a
 
 - 🤖 **AI Cooking Companion** — Your pixel sous-chef guides you through every step
 - 🧊 **Interactive Pixel Kitchen** — Open the fridge, pick ingredients, toss into the pot
-- 🔥 **Real-time Cooking Simulation** — Countdown timer, random fire/seasoning/flavor events, AI chat
+- 🔥 **Real-time Cooking Simulation** — Countdown timer, random fire / seasoning / flavor events, AI chat
 - 🧬 **Taste Personality System** — AI analyzes your cooking style and builds your Taste DNA
 - 📝 **AI Diary & Memory Timeline** — Typewriter journal entries, cooking memories, future suggestions
 - 🎮 **Pixel Game Feel** — 8-bit interface with Framer Motion animations, blinking chef, steam, sparkles
-- 📱 **Fully Responsive** — Polished at 375px through ultrawide, mobile-first
+- 📱 **Fully Responsive** — Polished from 375px to ultrawide, mobile-first
 
 ---
 
-## 📸 Demo Screenshots
+## 📸 Screenshots
 
-| Home | Studio | Cooking | Memory |
-|------|--------|---------|--------|
+| Home (Memory Kitchen) | AI Cooking Studio | Cooking Simulation | Taste Memory |
+|:---------------------:|:-----------------:|:------------------:|:------------:|
 | ![Home](docs/screenshots/home.png) | ![Studio](docs/screenshots/studio.png) | ![Cooking](docs/screenshots/cooking.png) | ![Memory](docs/screenshots/memory.png) |
 
-> Screenshots coming soon — replace the placeholders in `docs/screenshots/` with your own captures.
+> Replace the four images in `docs/screenshots/` with real captures (recommended size ≈ 1280×720 or 16:9).
 
 ---
 
@@ -55,15 +61,15 @@ Taste Memory Diary
 
 ## 🏗️ Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| Framework | React 18 + TypeScript |
-| Build | Vite 5 |
-| Animation | Framer Motion 11 |
-| Styling | Tailwind CSS v3 + Custom Theme |
-| Fonts | Press Start 2P · VT323 · Inter |
-| State | React useState / useMemo / useRef |
-| Persistence | localStorage (tutorial flag only) |
+| Layer       | Technology                          |
+|-------------|-------------------------------------|
+| Framework   | React 18 + TypeScript               |
+| Build       | Vite 5                              |
+| Animation   | Framer Motion 11                    |
+| Styling     | Tailwind CSS v3 + Custom Theme      |
+| Fonts       | Press Start 2P · VT323 · Inter      |
+| State       | React useState / useMemo / useRef   |
+| Persistence | localStorage (tutorial flag only)   |
 
 ---
 
@@ -76,15 +82,15 @@ src/
 │   ├── cooking/         # AIAdvisor, IngredientShelf, TasteMemoryCard, Story
 │   │   └── story/       # ResultPreview, CookingProgress
 │   ├── kitchen/         # MemoryKitchen (homepage)
-│   ├── memory/          # AIReflection, TasteDNA, MemoryTimeline, etc.
+│   ├── memory/          # AIReflection, TasteDNA, MemoryTimeline...
 │   └── ui/              # PixelButton, PixelChef, PixelCard, Header
-├── engine/              # Core logic (no side effects)
-│   ├── memoryEngine.ts  # Ingredient combo analysis + nutrition advice
-│   ├── cookingEngine.ts # Cooking state machine + scoring
-│   └── personalityEngine.ts  # TasteDNA archetype classification
-├── pages/               # Top-level route pages
-├── styles/              # theme.css, global styles
-├── types/               # TypeScript interfaces
+├── engine/              # Pure logic (no side effects)
+│   ├── memoryEngine.ts
+│   ├── cookingEngine.ts
+│   └── personalityEngine.ts
+├── pages/
+├── styles/
+├── types/
 └── App.tsx              # SPA router (useState-based)
 ```
 
@@ -93,55 +99,38 @@ src/
 ## 💻 Local Development
 
 ```bash
-# Install
 npm install
-
-# Dev server
-npm run dev
-
-# TypeScript check
-npm run lint
-
-# Production build
+npm run dev          # http://localhost:5173
+npm run lint         # TypeScript check
 npm run build
-
-# Preview build locally
 npm run preview
 ```
-
----
 
 ## 🚢 Deployment
 
 ### Vercel (recommended)
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vivayang911/pixel-chef-ai)
-
-Or manually:
-
 ```bash
 npx vercel
 ```
 
-SPA routing is handled via `vercel.json` — all routes fall back to `index.html`.
+SPA routing is already handled by `vercel.json`.
 
-### Any Static Host
+### Any static host
 
 ```bash
 npm run build
-# Upload the dist/ folder to Netlify, Cloudflare Pages, GitHub Pages, etc.
+# Upload the dist/ folder
 ```
-
----
 
 ## 🔮 Future Ideas
 
-- 🎵 Web Audio sizzle & chiptune sound effects
+- 🎵 Web Audio sizzle & chiptune effects
 - 🗃️ IndexedDB recipe history
-- 🤖 OpenAI / Gemini integration for real AI suggestions
-- 🏆 Cooking achievements & unlockable pixel cosmetics
-- 🌐 Social sharing: generate pixel recipe cards
-- 📲 PWA for offline cooking
+- 🤖 Real AI (OpenAI / Gemini) suggestions
+- 🏆 Cooking achievements & unlockable cosmetics
+- 🌐 Social sharing of pixel recipe cards
+- 📲 PWA support
 
 ---
 
