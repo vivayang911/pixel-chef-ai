@@ -1,7 +1,7 @@
 {
   "name": "pixel-chef-ai",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "description": "Pixel Chef AI — A pixel-art cooking assistant demo for the DEV Frontend Challenge.",
   "scripts": {
