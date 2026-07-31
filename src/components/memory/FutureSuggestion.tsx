@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import type { PersonalityReport } from '@/types/memory'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 interface FutureSuggestionProps {
   report: PersonalityReport
@@ -11,6 +12,7 @@ interface FutureSuggestionProps {
  * Shown at the bottom of the TasteMemory page as a "what's next" teaser.
  */
 export default function FutureSuggestion({ report, delay = 0 }: FutureSuggestionProps) {
+  const { t } = useLanguage()
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -29,7 +31,7 @@ export default function FutureSuggestion({ report, delay = 0 }: FutureSuggestion
         </motion.span>
         <div>
           <h3 className="font-terminal text-[8px] tracking-widest text-cream/50">
-            YOUR NEXT CHALLENGE
+            {t('diary.suggestion')}
           </h3>
           <p className="font-pixel text-sm text-cream">
             {report.suggestion.dish}
@@ -50,7 +52,7 @@ export default function FutureSuggestion({ report, delay = 0 }: FutureSuggestion
       {/* Stats footer */}
       <div className="flex items-center gap-4 border-t-2 border-ink-line pt-3">
         <div className="flex items-center gap-1.5">
-          <span className="font-terminal text-[7px] text-cream/40">HEALTH</span>
+          <span className="font-terminal text-[7px] text-cream/40">{t('diary.healthScore')}</span>
           <div className="h-2 w-14 border-2 border-ink bg-ink">
             <motion.div
               className="h-full bg-mint"
@@ -63,7 +65,7 @@ export default function FutureSuggestion({ report, delay = 0 }: FutureSuggestion
         </div>
 
         <div className="flex items-center gap-1.5">
-          <span className="font-terminal text-[7px] text-cream/40">FAVORITES</span>
+          <span className="font-terminal text-[7px] text-cream/40">{t('diary.favoriteIngredients')}</span>
           <span className="font-pixel text-[9px] text-cream/80">
             {report.favoriteIngredients.join(' ')}
           </span>

@@ -1,47 +1,50 @@
 import { motion } from 'framer-motion'
-import PixelPanel from '@/components/ui/PixelPanel'
 import type { TasteProfile } from '@/engine/memoryEngine'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 interface TasteMemoryCardProps {
   profile: TasteProfile
 }
 
-/** A small card showing what PIXEL currently understands about the chef's taste. */
+/** PIXEL's evolving taste profile: preferred tags and health goal. */
 export default function TasteMemoryCard({ profile }: TasteMemoryCardProps) {
+  const { t } = useLanguage()
+
   return (
-    <PixelPanel glow="cheese" className="p-4">
-      <h3 className="font-pixel text-[8px] text-grape">YOUR TASTE PROFILE</h3>
+    <motion.div
+      initial={{ opacity: 0, x: 18 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: 0.15, type: 'spring', stiffness: 200, damping: 20 }}
+      className="pixel-panel bg-ink-soft p-4 shadow-pixel"
+    >
+      <h3 className="mb-3 font-pixel text-[10px] text-cream">
+        {t('memory.yourTasteProfile')}
+      </h3>
 
-      <motion.p
-        key={profile.title}
-        initial={{ opacity: 0, x: -8 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ type: 'spring', stiffness: 260, damping: 18 }}
-        className="mt-3 font-pixel text-[11px] leading-relaxed text-cream"
-      >
-        {profile.title}
-      </motion.p>
+      <div className="space-y-3">
+        {/* Preferred flavor tags */}
+        <div>
+          <span className="font-terminal text-base text-cream/50">{t('memory.likes')}</span>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {profile.preferredTags.map((tag) => (
+              <motion.span
+                key={tag}
+                whileHover={{ scale: 1.1 }}
+                className="inline-block border-2 border-ink bg-grape/30 px-2 py-0.5 font-terminal text-lg text-cream/80 shadow-pixel-sm"
+              >
+                {tag}
+              </motion.span>
+            ))}
+          </div>
+        </div>
 
-      <div className="mt-4">
-        <span className="font-terminal text-base text-cream/50">Likes：</span>
-        <div className="mt-1 flex flex-wrap gap-1.5">
-          {profile.likes.map((like) => (
-            <motion.span
-              key={like}
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 16 }}
-              className="border-2 border-ink bg-tomato px-2 py-0.5 font-terminal text-sm text-ink shadow-pixel-sm"
-            >
-              {like}
-            </motion.span>
-          ))}
+        <div className="border-t-2 border-ink-line pt-3">
+          <span className="font-terminal text-lg text-cream/50">
+            {t('memory.healthGoal')}
+            <span className="text-mint">{profile.healthGoal}</span>
+          </span>
         </div>
       </div>
-
-      <p className="mt-4 border-t-2 border-ink-line pt-3 font-terminal text-base text-cream/50">
-        Health Goal：<span className="text-mint">{profile.healthGoal}</span>
-      </p>
-    </PixelPanel>
+    </motion.div>
   )
 }

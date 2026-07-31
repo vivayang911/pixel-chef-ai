@@ -2,18 +2,22 @@ import { motion } from 'framer-motion'
 import Container from '@/components/ui/Container'
 import PixelButton from '@/components/ui/PixelButton'
 import PixelChef from '@/components/ui/PixelChef'
+import { useLanguage } from '@/i18n/LanguageContext'
+import { type Lang } from '@/i18n/translations'
 
-const NAV_LINKS = [
-  { label: 'Cookbook', href: '#cookbook' },
-  { label: 'Features', href: '#features' },
-  { label: 'How it works', href: '#how' },
-]
+const LANG_LABELS: Record<Lang, string> = {
+  en: 'EN',
+  zh: '中',
+  ja: '日',
+}
 
 interface HeaderProps {
   onStart?: () => void
 }
 
 export default function Header({ onStart }: HeaderProps) {
+  const { t, lang, cycleLang } = useLanguage()
+
   return (
     <motion.header
       initial={{ y: -80, opacity: 0 }}
@@ -32,21 +36,22 @@ export default function Header({ onStart }: HeaderProps) {
           </span>
         </a>
 
-        <nav className="hidden items-center gap-6 md:flex">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="font-terminal text-xl text-cream/80 transition-colors hover:text-cheese"
-            >
-              {link.label}
-            </a>
-          ))}
-        </nav>
+        <div className="flex items-center gap-3">
+          {/* Language switcher */}
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={cycleLang}
+            className="rounded border-2 border-cream/30 px-2 py-1 font-pixel text-[10px] text-cream/70 transition-colors hover:border-cheese hover:text-cheese sm:text-xs"
+            title={lang === 'en' ? 'Switch to 中文' : lang === 'zh' ? '日本語に切替' : 'Switch to English'}
+          >
+            {LANG_LABELS[lang]}
+          </motion.button>
 
-        <PixelButton variant="tomato" className="hidden sm:inline-flex" onClick={onStart}>
-          Start Cooking
-        </PixelButton>
+          <PixelButton variant="tomato" className="hidden sm:inline-flex" onClick={onStart}>
+            {t('home.startCooking')}
+          </PixelButton>
+        </div>
       </Container>
     </motion.header>
   )

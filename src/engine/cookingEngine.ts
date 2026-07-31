@@ -1,4 +1,6 @@
 import type { Ingredient } from '@/types/food'
+import type { Lang } from '@/i18n/translations'
+import { translations } from '@/i18n/translations'
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -118,7 +120,9 @@ export function computeCookingResult(
   userTime: number,
   recommended: number,
   eventIds: string[],
+  lang: Lang = 'en',
 ): CookingResult {
+  const T = translations.engineCooking
   const ratio = userTime / recommended
 
   let taste = 68
@@ -126,19 +130,19 @@ export function computeCookingResult(
   let nutrition = 58
   let message = ''
 
-  // --- Timimg ---
+  // --- Timing ---
   if (ratio >= 0.85 && ratio <= 1.15) {
     taste += 15
     creativity += 5
   } else if (ratio < 0.7) {
     taste -= 25
-    message = "Under-cooked… but no worries! Just give it a bit more time next time."
+    message = T.underCooked[lang]
   } else if (ratio > 1.35) {
     taste -= 18
     creativity += 3
-    message = "A little overdone, but the caramelization added depth to the flavor!"
+    message = T.overDone[lang]
   } else {
-    taste += 5 // small bonus for being close
+    taste += 5
   }
 
   // --- Ingredient diversity ---
@@ -171,9 +175,7 @@ export function computeCookingResult(
   const success = avg >= 55
 
   if (!message) {
-    message = success
-      ? 'You created something special. PIXEL is proud of you! ✨'
-      : "Don't worry. Every dish teaches us something new 💡"
+    message = success ? T.successMsg[lang] : T.failMsg[lang]
   }
 
   return {

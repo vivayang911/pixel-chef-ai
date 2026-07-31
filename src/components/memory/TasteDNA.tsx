@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 interface TasteDNAProps {
   /** e.g. "🔥 Fire Chef" */
@@ -16,6 +17,7 @@ const TRAIT_COLORS = ['bg-tomato', 'bg-grape', 'bg-mint', 'bg-cheese']
  * with floating trait tags.
  */
 export default function TasteDNA({ personality, traits, delay = 0 }: TasteDNAProps) {
+  const { t } = useLanguage()
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
@@ -47,7 +49,7 @@ export default function TasteDNA({ personality, traits, delay = 0 }: TasteDNAPro
 
       {/* Title */}
       <h3 className="mb-1 font-terminal text-[8px] tracking-widest text-cream/50">
-        YOUR COOKING PERSONALITY
+        {t('dna.title')}
       </h3>
 
       {/* Personality type */}

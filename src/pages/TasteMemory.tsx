@@ -10,6 +10,7 @@ import FutureSuggestion from '@/components/memory/FutureSuggestion'
 import { generatePersonalityReport } from '@/engine/personalityEngine'
 import type { CookingResult } from '@/engine/cookingEngine'
 import type { Ingredient } from '@/types/food'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 interface TasteMemoryPageProps {
   result: CookingResult
@@ -29,9 +30,10 @@ export default function TasteMemoryPage({
   onBack,
   onCookAgain,
 }: TasteMemoryPageProps) {
+  const { t, lang } = useLanguage()
   const report = useMemo(
-    () => generatePersonalityReport(dish, result.score, result.events, result.dishName),
-    [dish, result],
+    () => generatePersonalityReport(dish, result.score, result.events, result.dishName, lang),
+    [dish, result, lang],
   )
 
   return (
@@ -116,10 +118,10 @@ export default function TasteMemoryPage({
           className="flex flex-wrap items-center justify-center gap-4 pt-4"
         >
           <PixelButton variant="ghost" onClick={onBack}>
-            ◀ Back to Kitchen
+            {t('memory.backToKitchen')}
           </PixelButton>
           <PixelButton variant="tomato" onClick={onCookAgain}>
-            🔄 Cook Something New
+            {t('memory.cookNew')}
           </PixelButton>
         </motion.div>
       </Container>

@@ -1,39 +1,21 @@
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import PixelButton from '@/components/ui/PixelButton'
-
-const STEPS = [
-  {
-    emoji: '🧊',
-    title: 'Open the Fridge',
-    body: 'Your pixel fridge is packed with fresh ingredients waiting to be discovered.',
-  },
-  {
-    emoji: '🥬',
-    title: 'Pick Ingredients',
-    body: 'Click on any ingredient to toss it into the cooking pot. Mix proteins, veggies, and flavors!',
-  },
-  {
-    emoji: '🤖',
-    title: 'Cook with AI',
-    body: 'PIXEL remembers your taste and gives real-time advice. Fire events, timing, and creativity all count.',
-  },
-  {
-    emoji: '📝',
-    title: 'Save Your Memory',
-    body: 'After each cook, PIXEL writes a diary entry, discovers your taste DNA, and suggests your next dish.',
-  },
-]
+import { useLanguage } from '@/i18n/LanguageContext'
 
 const LS_KEY = 'pixel-chef-tutorial-seen'
 
-/**
- * First-visit onboarding overlay.
- * Checks localStorage so it only plays once per browser.
- */
 export default function OnboardingTutorial() {
+  const { t } = useLanguage()
   const [step, setStep] = useState(0)
   const [visible, setVisible] = useState(false)
+
+  const STEPS = [
+    { emoji: '🕹️', title: t('tutorial.step1Title'), body: t('tutorial.step1Text') },
+    { emoji: '🥦', title: t('tutorial.step2Title'), body: t('tutorial.step2Text') },
+    { emoji: '🔥', title: t('tutorial.step3Title'), body: t('tutorial.step3Text') },
+    { emoji: '🧬', title: t('tutorial.step4Title'), body: t('tutorial.step4Text') },
+  ]
 
   useEffect(() => {
     const seen = localStorage.getItem(LS_KEY)
@@ -69,7 +51,6 @@ export default function OnboardingTutorial() {
             onClick={(e) => e.stopPropagation()}
             className="mx-4 w-full max-w-sm border-4 border-ink bg-ink-panel px-7 py-7 shadow-pixel-lg"
           >
-            {/* Step indicator dots */}
             <div className="mb-5 flex justify-center gap-2">
               {STEPS.map((_, i) => (
                 <span
@@ -81,27 +62,23 @@ export default function OnboardingTutorial() {
               ))}
             </div>
 
-            {/* Emoji */}
             <div className="mb-4 text-center text-4xl">{current.emoji}</div>
 
-            {/* Title */}
             <h2 className="mb-3 text-center font-pixel text-sm text-cream">
               {current.title}
             </h2>
 
-            {/* Body */}
             <p className="mb-6 text-center font-sans text-sm leading-relaxed text-cream/70">
               {current.body}
             </p>
 
-            {/* Controls */}
             <div className="flex items-center justify-between gap-3">
               <button
                 type="button"
                 onClick={dismiss}
                 className="font-terminal text-lg text-cream/40 hover:text-cream/70 transition-colors"
               >
-                Skip
+                {t('onboarding.skip')}
               </button>
 
               <PixelButton
@@ -114,7 +91,7 @@ export default function OnboardingTutorial() {
                   }
                 }}
               >
-                {isLast ? '🎮 Let\'s Cook!' : 'Next ▶'}
+                {isLast ? t('tutorial.readyToCook') : t('onboarding.next')}
               </PixelButton>
             </div>
           </motion.div>

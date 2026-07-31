@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 interface AIReflectionProps {
   /** Full AI reflection text; it will be typed out character by character. */
@@ -12,6 +13,7 @@ const CHARS_PER_TICK = 3
 
 /** PIXEL's reflective diary entry — typewriter animation mimicking AI writing a diary. */
 export default function AIReflection({ text, onComplete }: AIReflectionProps) {
+  const { t } = useLanguage()
   const [displayed, setDisplayed] = useState('')
   const [done, setDone] = useState(false)
 
@@ -52,7 +54,7 @@ export default function AIReflection({ text, onComplete }: AIReflectionProps) {
 
       {/* Date header */}
       <div className="mb-3 flex items-center gap-2">
-        <span className="font-pixel text-[7px] text-cheese/70">📖 PIXEL&apos;S DIARY</span>
+        <span className="font-pixel text-[7px] text-cheese/70">{t('diary.title')}</span>
         <span className="h-px flex-1 bg-ink-line" />
       </div>
 
@@ -76,7 +78,7 @@ export default function AIReflection({ text, onComplete }: AIReflectionProps) {
           transition={{ delay: 0.3, type: 'spring', stiffness: 220 }}
           className="absolute -bottom-2 -right-2 rotate-6 border-2 border-ink bg-mint px-2.5 py-0.5"
         >
-          <span className="font-terminal text-[8px] text-ink">MEMORY SAVED</span>
+          <span className="font-terminal text-[8px] text-ink">{t('diary.saved')}</span>
         </motion.div>
       )}
     </motion.div>

@@ -4,6 +4,7 @@ import Container from '@/components/ui/Container'
 import PixelPanel from '@/components/ui/PixelPanel'
 import PixelButton from '@/components/ui/PixelButton'
 import PixelChefAnimation from './PixelChefAnimation'
+import { useLanguage } from '@/i18n/LanguageContext'
 import type { CookingResult } from '@/engine/cookingEngine'
 
 interface ResultPreviewProps {
@@ -28,14 +29,16 @@ function AnimatedNumber({ value }: { value: number }) {
   return <span className="font-pixel text-2xl text-cream">{n}</span>
 }
 
-const SCORE_BARS: { key: keyof CookingResult['score']; label: string; color: string; emoji: string }[] = [
-  { key: 'taste', label: 'TASTE', color: 'bg-tomato', emoji: '👅' },
-  { key: 'creativity', label: 'CREATIVITY', color: 'bg-grape', emoji: '🎨' },
-  { key: 'nutrition', label: 'NUTRITION', color: 'bg-mint', emoji: '💪' },
-]
-
 /** Final result screen: animated scores, dish celebration, memory update message. */
 export default function ResultPreview({ result, onBack, onRetry, onMemory }: ResultPreviewProps) {
+  const { t } = useLanguage()
+
+  const SCORE_BARS: { key: keyof CookingResult['score']; color: string; emoji: string }[] = [
+    { key: 'taste', color: 'bg-tomato', emoji: '👅' },
+    { key: 'creativity', color: 'bg-grape', emoji: '🎨' },
+    { key: 'nutrition', color: 'bg-mint', emoji: '💪' },
+  ]
+
   const avg = Math.round(
     (result.score.taste + result.score.creativity + result.score.nutrition) / 3,
   )
@@ -70,7 +73,7 @@ export default function ResultPreview({ result, onBack, onRetry, onMemory }: Res
                 result.success ? 'bg-tomato text-ink' : 'bg-cheese text-ink'
               }`}
             >
-              {result.success ? '★ COOKING COMPLETE' : '★ FLAVOR DISCOVERY'}
+              {result.success ? t('result.cookingComplete') : t('result.flavorDiscovery')}
             </span>
 
             <h1 className="mt-5 font-pixel text-lg leading-relaxed text-cream sm:text-2xl">
@@ -86,7 +89,7 @@ export default function ResultPreview({ result, onBack, onRetry, onMemory }: Res
               {SCORE_BARS.map((bar, i) => (
                 <div key={bar.key} className="flex items-center gap-3">
                   <span className="w-14 text-left font-pixel text-[7px] text-cream/70">
-                    {bar.label}
+                    {t(`result.${bar.key}`)}
                   </span>
                   <span className="w-6 font-terminal text-base text-cream/50">{bar.emoji}</span>
                   <div className="flex-1 h-4 overflow-hidden border-2 border-ink bg-ink">
@@ -112,7 +115,7 @@ export default function ResultPreview({ result, onBack, onRetry, onMemory }: Res
                 transition={{ delay: 1.8, type: 'spring', stiffness: 260, damping: 16 }}
                 className="inline-block border-4 border-ink bg-cheese px-4 py-1 font-pixel text-base text-ink shadow-pixel"
               >
-                {avg} pts
+                {t('result.pts', { n: avg })}
               </motion.span>
             </div>
 
@@ -133,7 +136,7 @@ export default function ResultPreview({ result, onBack, onRetry, onMemory }: Res
               transition={{ delay: 1.5 }}
               className="mt-3 font-terminal text-base text-grape"
             >
-              PIXEL saved this cook to your taste memory 📝
+              {t('result.memoryNote')}
             </motion.p>
           </PixelPanel>
         </motion.div>
@@ -145,13 +148,13 @@ export default function ResultPreview({ result, onBack, onRetry, onMemory }: Res
           className="mt-10 flex flex-wrap items-center justify-center gap-4"
         >
           <PixelButton variant="ghost" onClick={onBack}>
-            ◀ Back to Kitchen
+            {t('result.backToKitchen')}
           </PixelButton>
           <PixelButton variant="tomato" onClick={onRetry}>
-            🔄 Try Again
+            {t('result.tryAgain')}
           </PixelButton>
           <PixelButton variant="grape" onClick={onMemory}>
-            📝 Save To My Taste Memory
+            {t('result.saveMemory')}
           </PixelButton>
         </motion.div>
       </Container>

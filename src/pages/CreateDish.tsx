@@ -9,6 +9,7 @@ import AIAdvisor from '@/components/cooking/AIAdvisor'
 import TasteMemoryCard from '@/components/cooking/TasteMemoryCard'
 import { generateFeedback } from '@/engine/memoryEngine'
 import { INGREDIENTS, type Ingredient } from '@/types/food'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 interface FlyingItem {
   key: number
@@ -33,6 +34,7 @@ const AMBIENT = [
 
 /** The AI Memory Cooking Studio: pick ingredients, feed the pot, get memory advice. */
 export default function CreateDish({ onBack, onStartCooking }: CreateDishProps) {
+  const { t, lang } = useLanguage()
   const [selected, setSelected] = useState<Ingredient[]>([])
   const [flying, setFlying] = useState<FlyingItem[]>([])
   const potRef = useRef<HTMLDivElement>(null)
@@ -41,7 +43,7 @@ export default function CreateDish({ onBack, onStartCooking }: CreateDishProps) 
   const selectedIds = selected.map((i) => i.id)
   const hasProtein = selected.some((i) => i.category === 'protein')
   const ready = selected.length >= 3 && hasProtein
-  const feedback = useMemo(() => generateFeedback(selected), [selected])
+  const feedback = useMemo(() => generateFeedback(selected, lang), [selected, lang])
 
   function handlePick(ingredient: Ingredient, e: MouseEvent<HTMLButtonElement>) {
     // Already in the pot → click removes it.
@@ -104,7 +106,7 @@ export default function CreateDish({ onBack, onStartCooking }: CreateDishProps) 
         {/* Page header */}
         <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
           <PixelButton variant="ghost" onClick={onBack}>
-            ◀ Back
+            {t('common.back')}
           </PixelButton>
           <motion.h1
             initial={{ opacity: 0, y: -10 }}
@@ -112,10 +114,10 @@ export default function CreateDish({ onBack, onStartCooking }: CreateDishProps) 
             transition={{ type: 'spring', stiffness: 240, damping: 20 }}
             className="font-pixel text-lg leading-relaxed text-cream sm:text-2xl"
           >
-            AI <span className="text-tomato">COOKING</span> <span className="text-cheese">STUDIO</span>
+            {t('studio.title')}
           </motion.h1>
           <span className="hidden border-4 border-ink bg-grape px-3 py-1 font-pixel text-[8px] text-ink shadow-pixel-sm sm:inline-block">
-            STEP 1 · PICK
+            {t('studio.step')}
           </span>
         </div>
 
@@ -130,11 +132,11 @@ export default function CreateDish({ onBack, onStartCooking }: CreateDishProps) 
             </div>
 
             <p className="text-center font-terminal text-lg text-cream/60">
-              {selected.length} / 3+ items ·{' '}
+              {t('studio.itemsCount', { n: selected.length, max: 3 })}{' '}
               {hasProtein ? (
-                <span className="text-mint">✓ Protein ready</span>
+                <span className="text-mint">{t('studio.proteinReady')}</span>
               ) : (
-                <span className="text-tomato">Need 1 more protein</span>
+                <span className="text-tomato">{t('studio.needProtein')}</span>
               )}
             </p>
 
@@ -148,7 +150,7 @@ export default function CreateDish({ onBack, onStartCooking }: CreateDishProps) 
                 onClick={() => onStartCooking(selected)}
                 className="px-8 py-4 text-xs"
               >
-                ▶ START COOKING
+                {t('studio.startCooking')}
               </PixelButton>
             </motion.div>
           </div>

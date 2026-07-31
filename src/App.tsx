@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
+import { LanguageProvider } from '@/i18n/LanguageContext'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import MemoryKitchen from '@/components/kitchen/MemoryKitchen'
@@ -20,6 +21,7 @@ export default function App() {
   const [cookingResult, setCookingResult] = useState<CookingResult | null>(null)
 
   return (
+    <LanguageProvider>
     <div className="flex min-h-screen flex-col overflow-x-hidden">
       {/* First-visit tutorial (localStorage gated) */}
       <OnboardingTutorial />
@@ -84,5 +86,6 @@ export default function App() {
 
       <Footer />
     </div>
+    </LanguageProvider>
   )
 }

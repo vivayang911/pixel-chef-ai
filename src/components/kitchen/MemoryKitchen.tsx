@@ -4,15 +4,7 @@ import PixelButton from '@/components/ui/PixelButton'
 import PixelChef from '@/components/ui/PixelChef'
 import PixelFridge from './PixelFridge'
 import SpeechBubble from './SpeechBubble'
-
-const WELCOME =
-  "Hi Chef! I'm PIXEL, your AI sous-chef. Crack open the fridge, toss me what you've got, and I'll remix it into a 16-bit masterpiece. Ready to cook?"
-
-const STATUS_TIPS = [
-  "Ready to create your comfort food?",
-  "Open the fridge, let's see what we've got!",
-  "I remember your favorite flavors…",
-]
+import { useLanguage } from '@/i18n/LanguageContext'
 
 const titleContainer: Variants = {
   hidden: {},
@@ -23,7 +15,6 @@ const letter: Variants = {
   show: { y: 0, opacity: 1, transition: { type: 'spring', stiffness: 320, damping: 22 } },
 }
 
-/** Renders text as individually staggered, spring-animated pixel letters. */
 function StaggerText({ text, className = '' }: { text: string; className?: string }) {
   return (
     <motion.span
@@ -42,7 +33,6 @@ function StaggerText({ text, className = '' }: { text: string; className?: strin
   )
 }
 
-/* Enhanced ambient particles — more variety for a richer kitchen feel */
 const PARTICLES = [
   { c: 'bg-tomato', x: '8%', y: '18%', s: 10, duration: 4.2 },
   { c: 'bg-cheese', x: '82%', y: '10%', s: 8, duration: 5.1 },
@@ -54,7 +44,6 @@ const PARTICLES = [
   { c: 'bg-cheese/50', x: '56%', y: '76%', s: 8, duration: 4.1 },
 ]
 
-/* Tiny sparkle stars */
 const STARS = [
   { x: '12%', y: '22%', delay: 0 },
   { x: '62%', y: '14%', delay: 0.7 },
@@ -68,12 +57,12 @@ interface MemoryKitchenProps {
 }
 
 export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
+  const { t } = useLanguage()
+
   return (
     <section id="top" className="relative overflow-hidden pb-12 pt-10 sm:pt-16">
-      {/* Kitchen warm glow */}
       <div className="pointer-events-none absolute inset-0 bg-kitchen" />
 
-      {/* Steam wisps */}
       {[0, 1, 2].map((i) => (
         <motion.span
           key={`steam-${i}`}
@@ -93,7 +82,6 @@ export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
         />
       ))}
 
-      {/* Ambient floating pixel particles */}
       {PARTICLES.map((p, i) => (
         <motion.span
           key={i}
@@ -104,7 +92,6 @@ export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
         />
       ))}
 
-      {/* Pixel sparkle stars */}
       {STARS.map((star, i) => (
         <motion.span
           key={`star-${i}`}
@@ -126,7 +113,6 @@ export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
       ))}
 
       <Container className="grid items-center gap-12 lg:grid-cols-2">
-        {/* Left: copy + AI welcome */}
         <div>
           <motion.span
             initial={{ opacity: 0, y: -10 }}
@@ -134,13 +120,13 @@ export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
             transition={{ duration: 0.5 }}
             className="inline-block border-4 border-ink bg-mint px-3 py-1 font-pixel text-[9px] text-ink shadow-pixel-sm"
           >
-            ★ DEV FRONTEND CHALLENGE
+            {t('home.devChallenge')}
           </motion.span>
 
           <h1 className="mt-5 font-pixel text-3xl leading-relaxed text-cream sm:text-5xl">
-            <StaggerText text="MEMORY" className="text-tomato" />
+            <StaggerText text={t('home.memory')} className="text-tomato" />
             <br />
-            <StaggerText text="KITCHEN" className="text-cheese" />
+            <StaggerText text={t('home.kitchen')} className="text-cheese" />
           </h1>
 
           <motion.p
@@ -149,22 +135,20 @@ export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
             transition={{ delay: 0.8, duration: 0.6 }}
             className="mt-5 max-w-md font-sans text-base text-cream/70 sm:text-lg"
           >
-            Your 16-bit AI cooking companion. Open the fridge and let PIXEL remix
-            your leftovers into legendary pixel recipes.
+            {t('home.tagline')}
           </motion.p>
 
           <div className="mt-6">
-            <SpeechBubble text={WELCOME} />
+            <SpeechBubble text={t('home.chefGreeting')} />
           </div>
 
-          {/* PIXEL status tip */}
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1.8, duration: 0.5 }}
             className="mt-4 font-terminal text-lg text-cream/50"
           >
-            {STATUS_TIPS[0]}
+            {t('home.statusReady')}
           </motion.p>
 
           <motion.div
@@ -174,25 +158,20 @@ export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
             className="mt-8 flex flex-wrap gap-4"
           >
             <PixelButton variant="tomato" onClick={onStart}>
-              ▶ Start Cooking
+              {t('home.startCooking')}
             </PixelButton>
-            <PixelButton variant="ghost">Watch Demo</PixelButton>
+            <PixelButton variant="ghost">{t('home.watchDemo')}</PixelButton>
           </motion.div>
         </div>
 
-        {/* Right: interactive kitchen scene */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.6 }}
           className="relative flex justify-center py-10"
         >
-          {/* Kitchen counter glow behind fridge */}
           <div className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-kitchen-cream/5 blur-3xl" />
-
           <PixelFridge />
-
-          {/* Enhanced PIXEL mascot — larger, floating, blinking */}
           <motion.div
             className="absolute -bottom-12 -right-8 sm:-bottom-14 sm:-right-10"
             initial={{ opacity: 0, y: 20 }}
@@ -207,7 +186,6 @@ export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
           >
             <div className="relative">
               <PixelChef className="h-20 w-20 sm:h-24 sm:w-24" />
-              {/* Hand wave */}
               <motion.div
                 className="absolute -right-2 top-2"
                 style={{ transformOrigin: 'bottom center' }}

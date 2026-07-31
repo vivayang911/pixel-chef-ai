@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion'
 import type { MouseEvent } from 'react'
 import type { Ingredient, IngredientCategory } from '@/types/food'
-import { CATEGORY_LABELS } from '@/types/food'
 import PixelIngredient from './PixelIngredient'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 interface IngredientShelfProps {
   ingredients: Ingredient[]
@@ -20,11 +20,13 @@ const CATEGORY_ACCENT: Record<IngredientCategory, string> = {
 
 /** The pixel fridge shelf: ingredients grouped by category on chunky shelf planks. */
 export default function IngredientShelf({ ingredients, selectedIds, onPick }: IngredientShelfProps) {
+  const { t } = useLanguage()
+
   return (
     <div className="pixel-panel bg-ink-soft p-4 shadow-pixel">
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="font-pixel text-[10px] text-cream">🧊 FRIDGE</h2>
-        <span className="font-terminal text-sm text-cream/50">Click to toss into pot</span>
+        <h2 className="font-pixel text-[10px] text-cream">{t('memory.fridge')}</h2>
+        <span className="font-terminal text-sm text-cream/50">{t('memory.clickToss')}</span>
       </div>
 
       <div className="space-y-5">
@@ -39,7 +41,7 @@ export default function IngredientShelf({ ingredients, selectedIds, onPick }: In
               <span
                 className={`border-2 border-ink px-2 py-0.5 font-pixel text-[7px] shadow-pixel-sm ${CATEGORY_ACCENT[category]}`}
               >
-                {CATEGORY_LABELS[category]}
+                {t(`common.${category}`)}
               </span>
               <span className="h-1 flex-1 bg-ink-line" />
             </div>

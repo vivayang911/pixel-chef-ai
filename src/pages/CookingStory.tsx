@@ -17,6 +17,7 @@ import {
 import type { CookingResult, CookingEventDef, CookingEventType } from '@/engine/cookingEngine'
 import type { ChefAnimState } from '@/components/cooking/story/PixelChefAnimation'
 import type { Ingredient } from '@/types/food'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 interface CookingStoryProps {
   dish: Ingredient[]
@@ -49,6 +50,7 @@ type StoryPhase = 'intro' | 'cooking' | 'finishing'
 
 export default function CookingStory({ dish, onFinish }: CookingStoryProps) {
   // --- State ---
+  const { t, lang } = useLanguage()
   const recommended = useMemo(() => getRecommendedTime(dish), [dish])
   const [phase, setPhase] = useState<StoryPhase>('intro')
   const [remaining, setRemaining] = useState(recommended)
@@ -108,7 +110,7 @@ export default function CookingStory({ dish, onFinish }: CookingStoryProps) {
     stopTimer()
     setPhase('finishing')
     const elapsed = recommended - Math.max(remaining, 0)
-    const result = computeCookingResult(dish, elapsed, recommended, firedEvents)
+    const result = computeCookingResult(dish, elapsed, recommended, firedEvents, lang)
     // Small delay for the chef to react
     setTimeout(() => onFinish(result), 2000)
   }, [stopTimer, dish, recommended, remaining, firedEvents, onFinish])
@@ -161,7 +163,7 @@ export default function CookingStory({ dish, onFinish }: CookingStoryProps) {
   useEffect(() => {
     const t = setTimeout(() => {
       setPhase('cooking')
-      setAiText("Let's cook together 🔥 I've been tracking your taste…")
+      setAiText(t('cooking.aiIntro'))
     }, 2500)
     return () => clearTimeout(t)
   }, [])
@@ -214,7 +216,7 @@ export default function CookingStory({ dish, onFinish }: CookingStoryProps) {
                       : 'bg-tomato text-ink'
                 }`}
               >
-                {phase === 'intro' ? 'GET READY' : phase === 'finishing' ? 'DONE!' : 'COOKING'}
+                {phase === 'intro' ? t('cooking.getReady') : phase === 'finishing' ? t('cooking.done') : t('cooking.cooking')}
               </span>
               <h1
                 className="mt-1 max-w-48 truncate font-pixel text-[11px] text-cream sm:text-base"
@@ -228,7 +230,7 @@ export default function CookingStory({ dish, onFinish }: CookingStoryProps) {
           {phase === 'intro' && (
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 animate-blink bg-cheese" />
-              <span className="font-terminal text-base text-cream/70">PIXEL warming up…</span>
+              <span className="font-terminal text-base text-cream/70">{t('cooking.warmingUp')}</span>
             </div>
           )}
         </div>
@@ -335,7 +337,7 @@ export default function CookingStory({ dish, onFinish }: CookingStoryProps) {
                   disabled={remaining > recommended * 0.8}
                   onClick={finishCooking}
                 >
-                  ⏹ FINISH COOKING
+                  ⏹ {t('cooking.finishButton')}
                 </PixelButton>
               </motion.div>
             )}
@@ -345,7 +347,7 @@ export default function CookingStory({ dish, onFinish }: CookingStoryProps) {
                 animate={{ opacity: 1 }}
                 className="font-terminal text-base text-cheese"
               >
-                PIXEL is tasting your creation…
+                {t('cooking.tasting')}
               </motion.p>
             )}
           </div>

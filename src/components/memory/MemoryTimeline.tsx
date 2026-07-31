@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useLanguage } from '@/i18n/LanguageContext'
 
 interface TimelineNode {
   label: string
@@ -28,6 +29,7 @@ const TIMELINE_NODES: TimelineNode[] = [
  * Day 1 → Today → Future recommendation.
  */
 export default function MemoryTimeline({ dishName, futureDish, delay = 0 }: MemoryTimelineProps) {
+  const { t } = useLanguage()
   const nodes: TimelineNode[] = [
     ...TIMELINE_NODES,
     { label: 'Today', subtitle: dishName, emoji: '🍳' },
@@ -42,7 +44,7 @@ export default function MemoryTimeline({ dishName, futureDish, delay = 0 }: Memo
       className="relative mx-auto w-full max-w-lg"
     >
       <h3 className="mb-4 font-terminal text-[8px] tracking-widest text-cream/50">
-        YOUR MEMORY TIMELINE
+        {t('timeline.title')}
       </h3>
 
       {/* Vertical line */}
