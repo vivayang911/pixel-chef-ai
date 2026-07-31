@@ -6,6 +6,12 @@
 
 ---
 
+## Overview
+
+Pixel Chef AI is an interactive AI cooking companion that lives inside a pixel-art kitchen. You pick ingredients from the fridge, toss them into the pot, and watch a real-time cooking simulation unfold — complete with random fire events, AI chatter, and a personality engine that builds your unique Taste DNA. Every cook generates a diary entry, a timeline memory, and future recipe suggestions.
+
+---
+
 ## ✨ Features
 
 - 🤖 **AI Cooking Companion** — Your pixel sous-chef guides you through every step
@@ -28,20 +34,6 @@
 
 ---
 
-## 🏗️ Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Framework | React 18 + TypeScript |
-| Build | Vite |
-| Animation | Framer Motion |
-| Styling | Tailwind CSS v3 |
-| Fonts | Press Start 2P · VT323 · Inter |
-| State | React useState / useMemo / useRef |
-| Persistence | localStorage (tutorial flag only) |
-
----
-
 ## 🚀 Demo Flow
 
 ```
@@ -61,34 +53,84 @@ Taste Memory Diary
 
 ---
 
-## 📦 Getting Started
+## 🏗️ Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | React 18 + TypeScript |
+| Build | Vite 5 |
+| Animation | Framer Motion 11 |
+| Styling | Tailwind CSS v3 + Custom Theme |
+| Fonts | Press Start 2P · VT323 · Inter |
+| State | React useState / useMemo / useRef |
+| Persistence | localStorage (tutorial flag only) |
+
+---
+
+## 📐 Architecture
+
+```
+src/
+├── components/
+│   ├── common/          # ErrorBoundary, PageTransition, PixelLoader
+│   ├── cooking/         # AIAdvisor, IngredientShelf, TasteMemoryCard, Story
+│   │   └── story/       # ResultPreview, CookingProgress
+│   ├── kitchen/         # MemoryKitchen (homepage)
+│   ├── memory/          # AIReflection, TasteDNA, MemoryTimeline, etc.
+│   └── ui/              # PixelButton, PixelChef, PixelCard, Header
+├── engine/              # Core logic (no side effects)
+│   ├── memoryEngine.ts  # Ingredient combo analysis + nutrition advice
+│   ├── cookingEngine.ts # Cooking state machine + scoring
+│   └── personalityEngine.ts  # TasteDNA archetype classification
+├── pages/               # Top-level route pages
+├── styles/              # theme.css, global styles
+├── types/               # TypeScript interfaces
+└── App.tsx              # SPA router (useState-based)
+```
+
+---
+
+## 💻 Local Development
 
 ```bash
 # Install
 npm install
 
-# Dev
+# Dev server
 npm run dev
 
-# Build & preview
+# TypeScript check
+npm run lint
+
+# Production build
 npm run build
+
+# Preview build locally
 npm run preview
 ```
 
 ---
 
-## 🚢 Deploy to Vercel
+## 🚢 Deployment
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/YOUR_USERNAME/pixel-chef-ai)
+### Vercel (recommended)
+
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vivayang911/pixel-chef-ai)
 
 Or manually:
 
 ```bash
-npm install -g vercel
-vercel
+npx vercel
 ```
 
 SPA routing is handled via `vercel.json` — all routes fall back to `index.html`.
+
+### Any Static Host
+
+```bash
+npm run build
+# Upload the dist/ folder to Netlify, Cloudflare Pages, GitHub Pages, etc.
+```
 
 ---
 

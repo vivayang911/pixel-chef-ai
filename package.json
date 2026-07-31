@@ -6,7 +6,7 @@
   "description": "Pixel Chef AI — A pixel-art cooking assistant demo for the DEV Frontend Challenge.",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "vite build",
     "preview": "vite preview",
     "lint": "tsc --noEmit"
   },
