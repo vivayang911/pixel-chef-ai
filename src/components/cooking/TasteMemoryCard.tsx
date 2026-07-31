@@ -26,7 +26,7 @@ export default function TasteMemoryCard({ profile }: TasteMemoryCardProps) {
         <div>
           <span className="font-terminal text-base text-cream/50">{t('memory.likes')}</span>
           <div className="mt-2 flex flex-wrap gap-2">
-            {profile.preferredTags.map((tag) => (
+            {profile.likes.map((tag) => (
               <motion.span
                 key={tag}
                 whileHover={{ scale: 1.1 }}

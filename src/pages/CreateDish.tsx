@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { MouseEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Container from '@/components/ui/Container'
@@ -7,9 +7,13 @@ import IngredientShelf from '@/components/cooking/IngredientShelf'
 import CookingPot from '@/components/cooking/CookingPot'
 import AIAdvisor from '@/components/cooking/AIAdvisor'
 import TasteMemoryCard from '@/components/cooking/TasteMemoryCard'
+import AIAnalysisPanel from '@/components/ai/AIAnalysisPanel'
+import FlavorDNA from '@/components/ai/FlavorDNA'
 import { generateFeedback } from '@/engine/memoryEngine'
+import { predictFlavor, recommendIngredient } from '@/engine/aiChefEngine'
 import { INGREDIENTS, type Ingredient } from '@/types/food'
 import { useLanguage } from '@/i18n/LanguageContext'
+import { useAICompanion } from '@/engine/aiCompanionContext'
 
 interface FlyingItem {
   key: number
@@ -35,15 +39,68 @@ const AMBIENT = [
 /** The AI Memory Cooking Studio: pick ingredients, feed the pot, get memory advice. */
 export default function CreateDish({ onBack, onStartCooking }: CreateDishProps) {
   const { t, lang } = useLanguage()
+  const { setMood, showMessage } = useAICompanion()
   const [selected, setSelected] = useState<Ingredient[]>([])
   const [flying, setFlying] = useState<FlyingItem[]>([])
   const potRef = useRef<HTMLDivElement>(null)
   const flySeq = useRef(0)
+  const prevLenRef = useRef(0)
 
   const selectedIds = selected.map((i) => i.id)
   const hasProtein = selected.some((i) => i.category === 'protein')
   const ready = selected.length >= 3 && hasProtein
   const feedback = useMemo(() => generateFeedback(selected, lang), [selected, lang])
+  const [showAIPanel, setShowAIPanel] = useState(false)
+  const [aiPanelDismissed, setAIPanelDismissed] = useState(false)
+
+  const flavor = useMemo(() => predictFlavor(selected), [selected])
+
+  // AI Companion: set curious mood on enter
+  useEffect(() => {
+    setMood('curious')
+  }, [setMood])
+
+  // AI Companion: show ingredient choice message when adding new ingredient
+  useEffect(() => {
+    if (selected.length > prevLenRef.current && selected.length <= 3) {
+      showMessage(t('companion.ingredientChoice'), 5000)
+    }
+    prevLenRef.current = selected.length
+  }, [selected.length, showMessage, t])
+
+  // Auto-show AI analysis when 3 ingredients are selected
+  useEffect(() => {
+    if (selected.length >= 3 && !aiPanelDismissed) {
+      const timer = setTimeout(() => {
+        setShowAIPanel(true)
+        setMood('thinking')
+        showMessage(t('companion.analyzing'), 8000)
+      }, 600)
+      return () => clearTimeout(timer)
+    }
+  }, [selected.length, aiPanelDismissed, setMood, showMessage, t])
+
+  function handleKeepRecipe() {
+    setShowAIPanel(false)
+    onStartCooking(selected)
+  }
+
+  function handleAiAddSuggestion() {
+    const rec = recommendIngredient(selected, INGREDIENTS)
+    if (rec && !selectedIds.includes(rec.id)) {
+      setSelected((prev) => [...prev, rec])
+    }
+    // Dismiss panel, return to ingredient picking
+    setShowAIPanel(false)
+    setAIPanelDismissed(true)
+    setMood('curious')
+  }
+
+  function handleCloseAIPanel() {
+    setShowAIPanel(false)
+    setAIPanelDismissed(true)
+    setMood('curious')
+  }
 
   function handlePick(ingredient: Ingredient, e: MouseEvent<HTMLButtonElement>) {
     // Already in the pot → click removes it.
@@ -159,9 +216,39 @@ export default function CreateDish({ onBack, onStartCooking }: CreateDishProps) 
           <div className="space-y-6">
             <AIAdvisor feedback={feedback} />
             <TasteMemoryCard profile={feedback.tasteProfile} />
+            {/* Flavor DNA preview */}
+            {selected.length > 0 && (
+              <motion.div
+                className="rounded border border-cream/10 bg-cream/5 p-3"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+              >
+                <p className="mb-2 text-center font-pixel text-[10px] text-cream/50">
+                  {t('studio.flavorDNA')}
+                </p>
+                <div className="mx-auto h-32 w-32">
+                  <FlavorDNA prediction={flavor} />
+                </div>
+              </motion.div>
+            )}
           </div>
         </div>
       </Container>
+
+      {/* AI Analysis Panel overlay */}
+      <AnimatePresence>
+        {showAIPanel && (
+          <AIAnalysisPanel
+            selected={selected}
+            allIngredients={INGREDIENTS}
+            lang={lang}
+            t={t}
+            onAddSuggestion={handleAiAddSuggestion}
+            onKeepRecipe={handleKeepRecipe}
+            onClose={handleCloseAIPanel}
+          />
+        )}
+      </AnimatePresence>
     </section>
   )
 }

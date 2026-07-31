@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { motion, type Variants } from 'framer-motion'
 import Container from '@/components/ui/Container'
 import PixelButton from '@/components/ui/PixelButton'
@@ -5,6 +6,8 @@ import PixelChef from '@/components/ui/PixelChef'
 import PixelFridge from './PixelFridge'
 import SpeechBubble from './SpeechBubble'
 import { useLanguage } from '@/i18n/LanguageContext'
+import { getRandomPhrase } from '@/engine/aiChefEngine'
+import { useAICompanion } from '@/engine/aiCompanionContext'
 
 const titleContainer: Variants = {
   hidden: {},
@@ -57,7 +60,43 @@ interface MemoryKitchenProps {
 }
 
 export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
-  const { t } = useLanguage()
+  const { t, lang } = useLanguage()
+  const { setMood, showMessage } = useAICompanion()
+  const [hasMemory, setHasMemory] = useState(false)
+
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('pixel-chef-dishes')
+      if (raw) {
+        const dishes = JSON.parse(raw)
+        if (Array.isArray(dishes) && dishes.length > 0) {
+          setHasMemory(true)
+        }
+      }
+    } catch {
+      // no saved memory yet
+    }
+  }, [])
+
+  // AI Companion: set mood on mount, show personalized greeting
+  useEffect(() => {
+    setMood('happy')
+    if (hasMemory) {
+      showMessage(t('companion.welcomeBack'), 8000)
+    } else {
+      const timer = setTimeout(() => {
+        showMessage(t('companion.letsDiscover'), 6000)
+      }, 1200)
+      return () => clearTimeout(timer)
+    }
+  }, [hasMemory, setMood, showMessage, t])
+
+  const greetingText = hasMemory
+    ? getRandomPhrase(lang)
+    : t('home.chefGreeting')
+  const statusText = hasMemory
+    ? t('home.statusMemory')
+    : t('home.statusReady')
 
   return (
     <section id="top" className="relative overflow-hidden pb-12 pt-10 sm:pt-16">
@@ -139,7 +178,7 @@ export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
           </motion.p>
 
           <div className="mt-6">
-            <SpeechBubble text={t('home.chefGreeting')} />
+            <SpeechBubble text={greetingText} />
           </div>
 
           <motion.p
@@ -148,7 +187,7 @@ export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
             transition={{ delay: 1.8, duration: 0.5 }}
             className="mt-4 font-terminal text-lg text-cream/50"
           >
-            {t('home.statusReady')}
+            {statusText}
           </motion.p>
 
           <motion.div

@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react'
-import { translations, getTranslation, type Lang } from './translations'
+import { getTranslation, type Lang } from './translations'
 
 /* ---------- detect browser language ---------- */
 function detectLang(): Lang {
@@ -32,12 +32,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const cycleLang = useCallback(() => {
-    setLang((prev) => {
-      const order: Lang[] = ['en', 'zh', 'ja']
-      const idx = order.indexOf(prev)
-      return order[(idx + 1) % order.length]
-    })
-  }, [setLang])
+    const order: Lang[] = ['en', 'zh', 'ja']
+    const idx = order.indexOf(lang)
+    setLang(order[(idx + 1) % order.length])
+  }, [lang, setLang])
 
   const t = useCallback(
     (path: string, params?: Record<string, unknown>): string => {

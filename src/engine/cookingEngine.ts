@@ -1,6 +1,6 @@
 import type { Ingredient } from '@/types/food'
 import type { Lang } from '@/i18n/translations'
-import { translations } from '@/i18n/translations'
+import { engineCooking } from '@/i18n/translations'
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -122,7 +122,7 @@ export function computeCookingResult(
   eventIds: string[],
   lang: Lang = 'en',
 ): CookingResult {
-  const T = translations.engineCooking
+  const T = engineCooking
   const ratio = userTime / recommended
 
   let taste = 68

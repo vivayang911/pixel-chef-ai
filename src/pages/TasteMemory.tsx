@@ -8,6 +8,7 @@ import DishMemoryCard from '@/components/memory/DishMemoryCard'
 import MemoryTimeline from '@/components/memory/MemoryTimeline'
 import FutureSuggestion from '@/components/memory/FutureSuggestion'
 import { generatePersonalityReport } from '@/engine/personalityEngine'
+import { generateDishVisual } from '@/engine/dishImageEngine'
 import type { CookingResult } from '@/engine/cookingEngine'
 import type { Ingredient } from '@/types/food'
 import { useLanguage } from '@/i18n/LanguageContext'
@@ -35,6 +36,12 @@ export default function TasteMemoryPage({
     () => generatePersonalityReport(dish, result.score, result.events, result.dishName, lang),
     [dish, result, lang],
   )
+
+  // Generate pixel artwork visual config for memory
+  const dishVisual = useMemo(() => {
+    const avg = Math.round((result.score.taste + result.score.creativity + result.score.nutrition) / 3)
+    return generateDishVisual(dish, avg)
+  }, [dish, result.score])
 
   return (
     <section className="relative overflow-hidden py-10 sm:py-14">
@@ -84,6 +91,7 @@ export default function TasteMemoryPage({
           dishName={result.dishName}
           ingredients={dish}
           score={result.score}
+          visualConfig={dishVisual}
           aiNote={
             dish.some((i) => i.tasteTags.includes('crispy'))
               ? 'User enjoys crispy garlic flavor and bold seasoning.'
@@ -100,6 +108,7 @@ export default function TasteMemoryPage({
         <MemoryTimeline
           dishName={result.dishName}
           futureDish={report.suggestion.dish}
+          todayVisual={dishVisual}
           delay={2400}
         />
 

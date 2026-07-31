@@ -1,9 +1,9 @@
 import { motion } from 'framer-motion'
-import type { SelectionFeedback } from '@/engine/memoryEngine'
+import type { MemoryFeedback } from '@/engine/memoryEngine'
 import { useLanguage } from '@/i18n/LanguageContext'
 
 interface AIAdvisorProps {
-  feedback: SelectionFeedback
+  feedback: MemoryFeedback
 }
 
 /** PIXEL's real-time selection analysis: ingredient memory lines + combo messages. */

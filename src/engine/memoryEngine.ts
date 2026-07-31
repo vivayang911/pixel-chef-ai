@@ -1,8 +1,8 @@
 import type { Ingredient } from '@/types/food'
 import type { Lang } from '@/i18n/translations'
-import { translations } from '@/i18n/translations'
+import { engineMemory } from '@/i18n/translations'
 
-const T = translations.engineMemory
+const T = engineMemory
 
 export interface TasteProfile {
   /** Current archetype PIXEL believes the chef is, e.g. "🔥 Fire Lover". */

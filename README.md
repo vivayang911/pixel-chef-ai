@@ -78,21 +78,118 @@ Taste Memory Diary
 ```
 src/
 ├── components/
-│   ├── common/          # ErrorBoundary, PageTransition, PixelLoader
-│   ├── cooking/         # AIAdvisor, IngredientShelf, TasteMemoryCard, Story
-│   │   └── story/       # ResultPreview, CookingProgress
-│   ├── kitchen/         # MemoryKitchen (homepage)
-│   ├── memory/          # AIReflection, TasteDNA, MemoryTimeline...
-│   └── ui/              # PixelButton, PixelChef, PixelCard, Header
-├── engine/              # Pure logic (no side effects)
+│   ├── ai/               # AI Chef Companion, FlavorDNA, AIAnalysisPanel, TypingText
+│   ├── common/           # ErrorBoundary, PageTransition, PixelLoader
+│   ├── cooking/          # AIAdvisor, IngredientShelf, TasteMemoryCard, Story
+│   │   └── story/        # ResultPreview, CookingEvent, PixelChefAnimation
+│   ├── kitchen/          # MemoryKitchen (homepage)
+│   ├── memory/           # AIReflection, TasteDNA, MemoryTimeline...
+│   └── ui/               # PixelButton, PixelChef, PixelCard, Header
+├── engine/               # Pure logic (no side effects)
+│   ├── aiChefEngine.ts   # AI analysis, flavor prediction, companion phrases
+│   ├── aiCompanionContext.tsx  # Global AI mood & speech bubble state
 │   ├── memoryEngine.ts
 │   ├── cookingEngine.ts
 │   └── personalityEngine.ts
+├── i18n/                 # EN / 中文 / 日本語 translations
 ├── pages/
-├── styles/
 ├── types/
-└── App.tsx              # SPA router (useState-based)
+└── App.tsx               # SPA router + AICompanionProvider
 ```
+
+---
+
+## 🧠 AI Companion Architecture
+
+```
+                    ┌─────────────────────────┐
+                    │   User Makes a Choice    │
+                    └───────────┬─────────────┘
+                                │
+                                ▼
+              ┌─────────────────────────────────┐
+              │   AI Companion Floating Avatar   │
+              │   (persistent across all pages)  │
+              │   ┌─────┐   ┌───────────────┐   │
+              │   │ Mood│──▶│ Speech Bubble │   │
+              │   │ 😊  │   │ w/ TypingAnim │   │
+              │   └─────┘   └───────────────┘   │
+              └─────────────┬───────────────────┘
+                                │
+                                ▼
+              ┌─────────────────────────────────┐
+              │     Ingredient Analysis Engine   │
+              │  • analyzeIngredients()          │
+              │  • 15‑element flavor profiles    │
+              │  • Pairing compatibility matrix  │
+              └─────────────┬───────────────────┘
+                                │
+                                ▼
+              ┌─────────────────────────────────┐
+              │        Flavor Prediction         │
+              │  • predictFlavor()               │
+              │  • FlavorDNA SVG radar chart     │
+              │  • Taste balance scoring         │
+              └─────────────┬───────────────────┘
+                                │
+                                ▼
+              ┌─────────────────────────────────┐
+              │        Nutrition Advice          │
+              │  • Calorie estimates             │
+              │  • Health score                  │
+              │  • Dietary balance tips          │
+              └─────────────┬───────────────────┘
+                                │
+                                ▼
+              ┌─────────────────────────────────┐
+              │       Cooking Assistance         │
+              │  • Real‑time event guidance      │
+              │  • Auto‑cook optimization        │
+              │  • AI chat with TypingText       │
+              └─────────────┬───────────────────┘
+                                │
+                                ▼
+              ┌─────────────────────────────────┐
+              │          Taste Memory            │
+              │  • Persistent cooking history    │
+              │  • Taste personality profile     │
+              │  • AI reflection diary           │
+              │  • Future recipe suggestions     │
+              └─────────────────────────────────┘
+```
+
+### AI Mood State Machine
+
+```
+   home page ──────▶ happy
+                       │
+   ingredient ─────▶ curious
+   selection           │
+                       │
+   AI analysis ─────▶ thinking
+   panel               │
+                       │
+   cooking ─────────▶ focused
+   story               │
+                       │
+   ┌───────────────────┤
+   │                   │
+   ▼                   ▼
+success             failure
+ (celebrate)        (comfort)
+```
+
+### Companion Messages by Phase
+
+| Phase | Mood | Speech Bubble |
+|-------|------|---------------|
+| Home (returning) | `happy` | "Welcome back, Chef. I saved your flavor memory." |
+| Home (fridge) | `happy` | "Let's discover today's flavor." |
+| Pick ingredient | `curious` | "Interesting choice! Let's see what we can create." |
+| AI Analysis | `thinking` | "Give me a second… I'm balancing your flavors." |
+| Cooking | `focused` | "The heat is rising. I would lower the flame now." |
+| Success | `celebrate` | "Beautiful! This feels like your style." |
+| Failure | `comfort` | "Not perfect… but every chef learns." |
 
 ---
 

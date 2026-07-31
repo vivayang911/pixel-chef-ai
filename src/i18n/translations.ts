@@ -21,6 +21,15 @@ export const translations = {
       proteinReady: '✓ Protein ready',
       needProtein: 'Need 1 more protein',
       startCooking: '▶ START COOKING',
+      aiAnalysisTitle: 'PIXEL AI ANALYSIS',
+      aiScanning: 'Analyzing your ingredients…',
+      flavorDNA: 'FLAVOR DNA',
+      nutrition: 'NUTRITION',
+      estimatedCalories: 'Estimated Calories',
+      healthScore: 'Health Score',
+      aiSuggestion: 'AI SUGGESTION',
+      keepRecipe: 'KEEP MY RECIPE',
+      addSuggestion: 'ADD SUGGESTION',
     },
     cooking: {
       getReady: 'GET READY',
@@ -30,6 +39,11 @@ export const translations = {
       warmingUp: 'PIXEL warming up…',
       tasting: 'PIXEL is tasting your creation…',
       aiIntro: "Let's cook together 🔥 I've been tracking your taste…",
+      autoCook: 'AUTO COOK WITH AI',
+      aiCooking: 'AI CHEF IS COOKING',
+      analyzing: 'Analyzing',
+      optimization: 'Optimization',
+      aiOptimizing: 'AI OPTIMIZATION',
     },
     result: {
       cookingComplete: '★ COOKING COMPLETE',
@@ -42,6 +56,9 @@ export const translations = {
       backToKitchen: '◀ Back to Kitchen',
       tryAgain: '🔄 Try Again',
       saveMemory: '📝 Save To My Taste Memory',
+      dishCreated: 'Your dish has been created.',
+      aiReview: 'AI Chef Review',
+      saveToMemory: 'SAVE TO MEMORY',
     },
     memory: {
       cookingMemory: 'COOKING MEMORY',
@@ -120,6 +137,15 @@ export const translations = {
       comfortCookDesc: 'You cook food that feels like home',
       kitchenScientistDesc: 'You treat cooking like a beautiful experiment',
     },
+    companion: {
+      welcomeBack: 'Welcome back, Chef.\nI saved your flavor memory.',
+      ingredientChoice: 'Interesting choice!\nLet\'s see what we can create.',
+      analyzing: 'Give me a second…\nI\'m balancing your flavors.',
+      cooking: 'The heat is rising.\nI would lower the flame now.',
+      success: 'Beautiful!\nThis feels like your style.',
+      failure: 'Not perfect…\nbut every chef learns.',
+      letsDiscover: 'Let\'s discover today\'s flavor.',
+    },
   },
 
   zh: {
@@ -144,6 +170,15 @@ export const translations = {
       proteinReady: '✓ 蛋白质就位',
       needProtein: '还需要 1 份蛋白质',
       startCooking: '▶ 开始烹饪',
+      aiAnalysisTitle: 'PIXEL AI 分析',
+      aiScanning: '正在分析你的食材…',
+      flavorDNA: '味觉 DNA',
+      nutrition: '营养成分',
+      estimatedCalories: '预计卡路里',
+      healthScore: '健康评分',
+      aiSuggestion: 'AI 建议',
+      keepRecipe: '保留我的配方',
+      addSuggestion: '采纳建议',
     },
     cooking: {
       getReady: '准备中',
@@ -153,6 +188,11 @@ export const translations = {
       warmingUp: 'PIXEL 正在预热…',
       tasting: 'PIXEL 正在品尝你的料理…',
       aiIntro: '一起下厨吧 🔥 我一直在追踪你的口味…',
+      autoCook: '🤖 AI 自动烹饪',
+      aiCooking: 'AI 厨师正在烹饪',
+      analyzing: '分析中',
+      optimization: '优化中',
+      aiOptimizing: 'AI 优化引擎',
     },
     result: {
       cookingComplete: '★ 烹饪完成',
@@ -165,6 +205,9 @@ export const translations = {
       backToKitchen: '◀ 回厨房',
       tryAgain: '🔄 再来一次',
       saveMemory: '📝 存入我的味觉记忆',
+      dishCreated: '你的料理已生成。',
+      aiReview: 'AI 主厨评价',
+      saveToMemory: '保存至记忆',
     },
     memory: {
       cookingMemory: '烹饪记忆',
@@ -243,6 +286,15 @@ export const translations = {
       comfortCookDesc: '你做的菜有家的味道',
       kitchenScientistDesc: '你把烹饪当作一场美妙的实验',
     },
+    companion: {
+      welcomeBack: '欢迎回来，大厨。\n我保存了你的味觉记忆。',
+      ingredientChoice: '有趣的选择！\n让我们看看能做出什么。',
+      analyzing: '稍等一下……\n我正在平衡你的风味。',
+      cooking: '火候正在上升。\n现在降火会更好。',
+      success: '太漂亮了！\n这就是你的风格。',
+      failure: '不算完美……\n但每位厨师都在学习中成长。',
+      letsDiscover: '让我们发现今天的风味吧。',
+    },
   },
 
   ja: {
@@ -267,6 +319,15 @@ export const translations = {
       proteinReady: '✓ タンパク質 OK',
       needProtein: 'タンパク質がもう 1 品必要',
       startCooking: '▶ 料理をスタート！',
+      aiAnalysisTitle: 'PIXEL AI 分析',
+      aiScanning: '食材を分析中…',
+      flavorDNA: '味覚 DNA',
+      nutrition: '栄養成分',
+      estimatedCalories: '推定カロリー',
+      healthScore: 'ヘルススコア',
+      aiSuggestion: 'AI アドバイス',
+      keepRecipe: 'このレシピで続ける',
+      addSuggestion: '提案を採用',
     },
     cooking: {
       getReady: '準備中',
@@ -276,6 +337,11 @@ export const translations = {
       warmingUp: 'PIXEL が準備中…',
       tasting: 'PIXEL が味を見ているよ…',
       aiIntro: '一緒に料理しよう 🔥 君の好み、ずっと見てきたからね…',
+      autoCook: '🤖 AI 自動調理',
+      aiCooking: 'AI シェフが調理中',
+      analyzing: '分析中',
+      optimization: '最適化中',
+      aiOptimizing: 'AI 最適化',
     },
     result: {
       cookingComplete: '★ 調理完了',
@@ -288,6 +354,9 @@ export const translations = {
       backToKitchen: '◀ キッチンに戻る',
       tryAgain: '🔄 もう一度',
       saveMemory: '📝 味の記憶に保存する',
+      dishCreated: '料理が完成しました。',
+      aiReview: 'AI シェフレビュー',
+      saveToMemory: '記憶に保存',
     },
     memory: {
       cookingMemory: '料理のキロク',
@@ -366,10 +435,20 @@ export const translations = {
       comfortCookDesc: '心がほっとする家庭の味',
       kitchenScientistDesc: '料理を美しい実験として楽しむ',
     },
+    companion: {
+      welcomeBack: 'おかえりなさい、シェフ。\n味の記憶は保存してあるよ。',
+      ingredientChoice: '面白い選択だね！\n何ができるか試してみよう。',
+      analyzing: 'ちょっと待って…\n風味のバランスを取ってるよ。',
+      cooking: '火が強くなってきた。\n今火を弱めたほうがいいかも。',
+      success: '美しい！\nこれは君らしい味だ。',
+      failure: '完璧じゃないけど…\nどんなシェフも学びながら成長するんだ。',
+      letsDiscover: '今日の味を発見しよう。',
+    },
   },
+} as const
 
-  /* ---------- Engine-level strings (not accessed via `t()` in components) ---------- */
-  engineMemory: {
+/* ---------- Engine-level strings (not accessed via `t()` in components) ---------- */
+export const engineMemory = {
     welcome: {
       en: "I'm PIXEL, your AI kitchen companion. Pick a few ingredients from the fridge — I'll guide you based on your taste memory and health goals 🍳",
       zh: '我是 PIXEL，你的 AI 厨房伙伴。从冰箱里选几样食材，我会根据你的口味记忆和健康目标给你建议 🍳',
@@ -486,9 +565,9 @@ export const translations = {
         ja: ({ cal }: { cal: number }) => `約 ${cal} kcal · いい組み合わせ — このまま続けて！`,
       },
     },
-  },
+} as const
 
-  engineCooking: {
+export const engineCooking = {
     underCooked: {
       en: "Under-cooked… but no worries! Just give it a bit more time next time.",
       zh: '火候太短……但没关系！下次多花一点时间就好。',
@@ -509,9 +588,9 @@ export const translations = {
       zh: '别担心，每一道菜都教会我们新的东西 💡',
       ja: '大丈夫。どの料理も、新しいことを教えてくれる 💡',
     },
-  },
+} as const
 
-  enginePersonality: {
+export const enginePersonality = {
     fireChefDesc: {
       en: 'You love bold, high-heat cooking. Crispy, golden edges are your signature.',
       zh: '你喜欢大胆、大火快炒的风格。焦香金黄是你最爱的印记。',
@@ -537,7 +616,6 @@ export const translations = {
       zh: '你把烹饪当作一场美妙的实验。每一克都精确无误。',
       ja: '料理を美しい実験として楽しむ。すべての計量に意味がある。',
     },
-  },
 } as const
 
 export type Lang = keyof typeof translations

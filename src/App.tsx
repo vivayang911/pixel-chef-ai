@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { LanguageProvider } from '@/i18n/LanguageContext'
+import { AICompanionProvider } from '@/engine/aiCompanionContext'
+import AIChefCompanion from '@/components/ai/AIChefCompanion'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
 import MemoryKitchen from '@/components/kitchen/MemoryKitchen'
@@ -22,6 +24,7 @@ export default function App() {
 
   return (
     <LanguageProvider>
+    <AICompanionProvider>
     <div className="flex min-h-screen flex-col overflow-x-hidden">
       {/* First-visit tutorial (localStorage gated) */}
       <OnboardingTutorial />
@@ -64,6 +67,7 @@ export default function App() {
             <PageTransition routeKey="result">
               <ResultPreview
                 result={cookingResult}
+                ingredients={dish}
                 onBack={() => setRoute('home')}
                 onRetry={() => setRoute('studio')}
                 onMemory={() => setRoute('memory')}
@@ -85,7 +89,11 @@ export default function App() {
       </main>
 
       <Footer />
+
+      {/* AI Chef Companion — persistent floating presence */}
+      <AIChefCompanion />
     </div>
+    </AICompanionProvider>
     </LanguageProvider>
   )
 }

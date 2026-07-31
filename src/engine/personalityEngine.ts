@@ -22,12 +22,10 @@ const ARCHETYPES: Archetype[] = [
   { emoji: '🧪', id: 'kitchenScientist', traits: ['Precise', 'Methodical', 'Balanced', 'Technique'] },
 ]
 
-function getArchetypeLabel(id: Archetype['id'], lang: Lang): string {
-  const P = translations.personality
-  // Only en has personality keys directly; reuse lang keys
-  const key = id as keyof typeof P
-  const entry = P[key] as Record<string, string> | undefined
-  return entry?.[lang] ?? `${ARCHETYPES.find((a) => a.id === id)?.emoji} ${id}`
+function getArchetypeLabel(id: Archetype['id'], _lang: Lang): string {
+  const P = translations.en.personality as Record<string, string>
+  const label = P[id] ?? `${ARCHETYPES.find((a) => a.id === id)?.emoji} ${id}`
+  return label
 }
 
 /* ================================================================ */

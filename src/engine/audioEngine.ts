@@ -32,3 +32,8 @@ export function playCooking(label = 'sizzle-loop') {
 export function playError(label = 'error') {
   if (DEBUG) console.log(`😅 [AUDIO] ${label}`)
 }
+
+/** AI companion message bubble appear — placeholder for future audio clip. */
+export function playAIMessage(label = 'ai-message') {
+  if (DEBUG) console.log(`🤖💬 [AUDIO] ${label}`)
+}
