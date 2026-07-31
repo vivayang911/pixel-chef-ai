@@ -92,6 +92,15 @@ export default function CookingStory({ dish, onFinish }: CookingStoryProps) {
     if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null }
   }, [])
 
+  // --- AI auto-handle events (declared before triggerEvent to avoid TDZ in deps) ---
+  const handleAutoResolveEvent = useCallback((eventType: CookingEventType) => {
+    if (eventType === 'fireTooHigh' || eventType === 'tooFast') {
+      setAiBonus((prev) => prev + 3)
+    }
+    setActiveEvent(null)
+    setTimerPaused(false)
+  }, [])
+
   // --- Fire an event -------------------------------------------------
   const triggerEvent = useCallback(
     (type: CookingEventType) => {
@@ -133,15 +142,6 @@ export default function CookingStory({ dish, onFinish }: CookingStoryProps) {
     const advice = generateCookingAdvice(dish, activeEvent.id, progress, lang)
     setAiText(`✅ ${advice.message.split('.')[0]}. (Score +5)`)
   }, [activeEvent, dish, progress, lang])
-
-  // --- AI auto-handle events -----------------------------------------
-  const handleAutoResolveEvent = useCallback((eventType: CookingEventType) => {
-    if (eventType === 'fireTooHigh' || eventType === 'tooFast') {
-      setAiBonus((prev) => prev + 3)
-    }
-    setActiveEvent(null)
-    setTimerPaused(false)
-  }, [])
 
   // --- Finish cooking ------------------------------------------------
   const finishCooking = useCallback(() => {

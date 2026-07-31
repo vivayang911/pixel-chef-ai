@@ -108,31 +108,30 @@ function IngredientShape({
   const scaleY = h / 20
 
   return (
-    <motion.g
-      initial={{ scale: 0, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ delay: 0.5 + index * 0.15, type: 'spring', stiffness: 300 }}
-      style={{
-        transform: `translate(${x}px, ${y}px) rotate(${rotate ?? 0}deg)`,
-        transformOrigin: 'center',
-      }}
-    >
-      <g transform={`scale(${scaleX}, ${scaleY})`}>
-        {rects.map((r, i) => (
-          <rect
-            key={i}
-            x={r.x}
-            y={r.y}
-            width={r.w}
-            height={r.h}
-            fill={i % 3 === 1 && visual.secondary ? visual.secondary : visual.color}
-            stroke="#0d0b1f"
-            strokeWidth="0.5"
-            strokeOpacity="0.3"
-          />
-        ))}
-      </g>
-    </motion.g>
+    <g transform={`translate(${x}, ${y}) rotate(${rotate ?? 0})`}>
+      <motion.g
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ delay: 0.5 + index * 0.15, type: 'spring', stiffness: 300 }}
+        style={{ transformOrigin: 'center' }}
+      >
+        <g transform={`scale(${scaleX}, ${scaleY})`}>
+          {rects.map((r, i) => (
+            <rect
+              key={i}
+              x={r.x}
+              y={r.y}
+              width={r.w}
+              height={r.h}
+              fill={i % 3 === 1 && visual.secondary ? visual.secondary : visual.color}
+              stroke="#0d0b1f"
+              strokeWidth="0.5"
+              strokeOpacity="0.3"
+            />
+          ))}
+        </g>
+      </motion.g>
+    </g>
   )
 }
 
