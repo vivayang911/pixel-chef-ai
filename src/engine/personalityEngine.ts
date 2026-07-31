@@ -60,7 +60,7 @@ function buildReflection(
   const avg = Math.round((score.taste + score.creativity + score.nutrition) / 3)
 
   const lines: string[] = []
-  lines.push(`Tonight you created: ${dishName}。`)
+  lines.push(`Tonight you created: ${dishName}.`)
 
   const obs: string[] = []
   if (spicy && crispy) obs.push('strong fire and crispy texture')
@@ -73,7 +73,7 @@ function buildReflection(
   else if (hasProtein) obs.push('a protein-heavy, hearty cooking style')
 
   if (obs.length > 0) {
-    lines.push(`I noticed something: you love ${obs.join('，and ')}。`)
+    lines.push(`I noticed something: you love ${obs.join(', and ')}.`)
   }
 
   if (fireEvent) {
@@ -88,7 +88,7 @@ function buildReflection(
   } else if (avg >= 55) {
     lines.push('A solid creation. Every cook adds a new page to your taste story.')
   } else {
-    lines.push('Not every experiment goes as planned. But today taught us something new — and that matters more.')
+    lines.push("Not every experiment goes as planned. But today taught us something new — and that matters more.")
   }
 
   return lines.join(' ')

@@ -23,7 +23,7 @@ export default function TasteMemoryCard({ profile }: TasteMemoryCardProps) {
       </motion.p>
 
       <div className="mt-4">
-        <span className="font-terminal text-base text-cream/50">喜欢：</span>
+        <span className="font-terminal text-base text-cream/50">Likes：</span>
         <div className="mt-1 flex flex-wrap gap-1.5">
           {profile.likes.map((like) => (
             <motion.span
@@ -40,7 +40,7 @@ export default function TasteMemoryCard({ profile }: TasteMemoryCardProps) {
       </div>
 
       <p className="mt-4 border-t-2 border-ink-line pt-3 font-terminal text-base text-cream/50">
-        健康目标：<span className="text-mint">{profile.healthGoal}</span>
+        Health Goal：<span className="text-mint">{profile.healthGoal}</span>
       </p>
     </PixelPanel>
   )

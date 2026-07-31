@@ -130,11 +130,11 @@ export default function CreateDish({ onBack, onStartCooking }: CreateDishProps) 
             </div>
 
             <p className="text-center font-terminal text-lg text-cream/60">
-              {selected.length} / 3+ 食材 ·{' '}
+              {selected.length} / 3+ items ·{' '}
               {hasProtein ? (
-                <span className="text-mint">✓ 蛋白质就位</span>
+                <span className="text-mint">✓ Protein ready</span>
               ) : (
-                <span className="text-tomato">还差 1 份蛋白质</span>
+                <span className="text-tomato">Need 1 more protein</span>
               )}
             </p>
 

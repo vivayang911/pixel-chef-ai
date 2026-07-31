@@ -51,7 +51,7 @@ export default function AIAdvisor({ feedback }: AIAdvisorProps) {
         <div className="min-w-0 flex-1">
           <div className="mb-2 flex items-center gap-2">
             <span className="h-2 w-2 animate-blink bg-mint" />
-            <span className="font-pixel text-[8px] text-mint">PIXEL AI · 记忆分析中</span>
+            <span className="font-pixel text-[8px] text-mint">PIXEL AI · Analyzing memory</span>
           </div>
 
           <p className="min-h-12 font-sans text-sm leading-relaxed text-cream">

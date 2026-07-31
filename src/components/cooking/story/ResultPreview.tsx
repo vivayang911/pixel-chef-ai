@@ -133,7 +133,7 @@ export default function ResultPreview({ result, onBack, onRetry, onMemory }: Res
               transition={{ delay: 1.5 }}
               className="mt-3 font-terminal text-base text-grape"
             >
-              PIXEL 已将这次烹饪记录加入你的口味记忆 📝
+              PIXEL saved this cook to your taste memory 📝
             </motion.p>
           </PixelPanel>
         </motion.div>
@@ -145,10 +145,10 @@ export default function ResultPreview({ result, onBack, onRetry, onMemory }: Res
           className="mt-10 flex flex-wrap items-center justify-center gap-4"
         >
           <PixelButton variant="ghost" onClick={onBack}>
-            ◀ 回厨房
+            ◀ Back to Kitchen
           </PixelButton>
           <PixelButton variant="tomato" onClick={onRetry}>
-            🔄 再试一次
+            🔄 Try Again
           </PixelButton>
           <PixelButton variant="grape" onClick={onMemory}>
             📝 Save To My Taste Memory

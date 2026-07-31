@@ -24,7 +24,7 @@ export default function IngredientShelf({ ingredients, selectedIds, onPick }: In
     <div className="pixel-panel bg-ink-soft p-4 shadow-pixel">
       <div className="mb-4 flex items-center justify-between">
         <h2 className="font-pixel text-[10px] text-cream">🧊 FRIDGE</h2>
-        <span className="font-terminal text-sm text-cream/50">点击食材丢进锅里</span>
+        <span className="font-terminal text-sm text-cream/50">Click to toss into pot</span>
       </div>
 
       <div className="space-y-5">

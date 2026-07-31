@@ -100,13 +100,13 @@ export function nameDish(ingredients: Ingredient[]): string {
   const ids = ingredients.map((d) => d.id)
   const spicy = ids.includes('chili')
   const base = ids.includes('pork-belly')
-    ? '焦香五花肉'
+    ? 'Seared Pork Belly'
     : ids.includes('chicken')
-      ? '嫩煎鸡胸肉'
+      ? 'Pan-Seared Chicken Breast'
       : ids.includes('fish')
-        ? '清蒸鲜鱼'
-        : '田园时蔬'
-  return `${spicy ? '香辣' : ''}${base}`
+        ? 'Steamed Fresh Fish'
+        : 'Garden Vegetables'
+  return `${spicy ? 'Spicy ' : ''}${base}`
 }
 
 /* ------------------------------------------------------------------ */
@@ -132,11 +132,11 @@ export function computeCookingResult(
     creativity += 5
   } else if (ratio < 0.7) {
     taste -= 25
-    message = '火候太短……但没关系！下次多花一点时间就好。'
+    message = "Under-cooked… but no worries! Just give it a bit more time next time."
   } else if (ratio > 1.35) {
     taste -= 18
     creativity += 3
-    message = '稍微久了一点，但焦香反而让风味更丰富了！'
+    message = "A little overdone, but the caramelization added depth to the flavor!"
   } else {
     taste += 5 // small bonus for being close
   }
@@ -173,7 +173,7 @@ export function computeCookingResult(
   if (!message) {
     message = success
       ? 'You created something special. PIXEL is proud of you! ✨'
-      : "Today we discovered a new flavor. Every cook is a lesson 💡"
+      : "Don't worry. Every dish teaches us something new 💡"
   }
 
   return {

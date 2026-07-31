@@ -21,42 +21,42 @@ const BASE_PROFILE: TasteProfile = {
 }
 
 const WELCOME_MESSAGE =
-  '我是 PIXEL，你的 AI 厨房伙伴。从冰箱里选几样食材，我会根据你的口味记忆和健康目标给出建议 🍳'
+  "I'm PIXEL, your AI kitchen companion. Pick a few ingredients from the fridge — I'll guide you based on your taste memory and health goals 🍳"
 
 /** Long-term taste memory: what PIXEL "remembers" per ingredient. */
 const MEMORY_LINES: Record<string, string> = {
-  'pork-belly': '我记得你喜欢焦香口感🔥 每次五花肉你都要煎到边缘微焦',
-  chicken: '鸡胸肉很符合你最近的健康目标💪 上次你还加了双份大蒜',
-  fish: '鱼肉是你的清爽之选🐟 配一点香草会更鲜',
-  broccoli: '好选择！你最近的餐盘里绿色越来越多了🥦',
-  mushroom: '蘑菇的鲜味能替代一部分油脂，很聪明的搭配🍄',
-  carrot: '胡萝卜的天然甜味可以平衡辣味🥕 你上次就这么做过',
-  garlic: '蒜香是你的老朋友了🧄 几乎每道菜都有它',
-  chili: '你的辣度偏好正在增强🌶 我记下了',
-  herb: '一点香草，层次感立刻提升🌿 这是你跟星级厨师学的',
+  'pork-belly': "I remember you love crispy textures 🔥 You always sear it until the edges are golden brown",
+  chicken: "Chicken breast fits your recent health goals 💪 Last time you went double garlic!",
+  fish: "Fish is your light-and-fresh go-to 🐟 A touch of herb makes it even brighter",
+  broccoli: "Great choice! Your plate has been getting greener lately 🥦",
+  mushroom: "Mushroom umami replaces some of the oil — clever move 🍄",
+  carrot: "Carrot's natural sweetness can balance the heat 🥕 You've done this before",
+  garlic: "Garlic is your old friend 🧄 It's in almost every dish you make",
+  chili: "Your spice tolerance is climbing 🌶 I'm taking notes",
+  herb: "A little herb, and the layers pop instantly 🌿 That's a pro-chef move",
 }
 
 /** Combo memories take priority over single-ingredient lines. */
 const COMBO_RULES: { has: string[]; message: string }[] = [
   {
     has: ['pork-belly', 'broccoli', 'mushroom'],
-    message: '完美！西兰花和蘑菇平衡了五花肉的油脂✨ 这正是你的健康目标',
+    message: "Perfect! Broccoli and mushroom balance out the pork belly's richness ✨ That's your health goal right there",
   },
   {
     has: ['pork-belly', 'broccoli'],
-    message: '西兰花上场！五花肉的油腻被拉回平衡🥦 我记得你说过要吃得清爽些',
+    message: "Broccoli came to save the day! Pork belly's richness reined back in 🥦 I remember you wanted lighter plates",
   },
   {
     has: ['chili', 'garlic'],
-    message: '蒜+辣椒，是你最爱的爆香开局🌶 记得开抽油烟机',
+    message: "Garlic + Chili — your signature flavor bomb 🌶 Don't forget the range hood!",
   },
   {
     has: ['fish', 'herb'],
-    message: '鱼肉配香草，清淡又高级🐟🌿 你的味蕾正在升级',
+    message: "Fish with herbs — delicate and elegant 🐟🌿 Your palate is leveling up",
   },
   {
     has: ['chicken', 'broccoli'],
-    message: '鸡胸肉+西兰花，标准的健身餐💪 加点蘑菇会更鲜',
+    message: "Chicken breast + broccoli — classic fitness plate 💪 Add mushroom for extra umami",
   },
 ]
 
@@ -132,18 +132,18 @@ function deriveNutritionAdvice(ingredients: Ingredient[]): string {
   const hasFlavor = ingredients.some((i) => i.category === 'flavor')
 
   if (totalCal >= 700) {
-    return `当前热量约 ${totalCal} kcal ⚠️ 但是最近你的目标是健康饮食，建议加入西兰花和蘑菇来平衡`
+    return `~${totalCal} kcal ⚠️ That's a bit heavy — your recent goal is lighter eating. Try adding broccoli and mushroom for balance`
   }
   if (hasProtein && hasVeg && hasFlavor) {
-    return `约 ${totalCal} kcal ✅ 蛋白质/蔬菜/风味俱全，这是一道完整又均衡的料理`
+    return `~${totalCal} kcal ✅ Protein, veggies, and flavor — this is a complete, well-rounded dish`
   }
   if (hasProtein && !hasVeg) {
-    return `约 ${totalCal} kcal · 但是最近你的目标是健康饮食，建议加入西兰花和蘑菇`
+    return `~${totalCal} kcal · Your recent goal is healthier eating — consider adding broccoli or mushroom`
   }
   if (!hasProtein) {
-    return `约 ${totalCal} kcal · 还差一份蛋白质，这道菜才算完整`
+    return `~${totalCal} kcal · Missing a protein source — this dish needs one to feel complete`
   }
-  return `约 ${totalCal} kcal · 搭配得不错，继续吧`
+  return `~${totalCal} kcal · Solid combo — keep going!`
 }
 
 /**
@@ -155,14 +155,14 @@ export function generateFeedback(ingredients: Ingredient[]): MemoryFeedback {
     return {
       message: WELCOME_MESSAGE,
       tasteProfile: BASE_PROFILE,
-      nutritionAdvice: '选满 3 样食材（含 1 份蛋白质）就可以开火啦',
+      nutritionAdvice: 'Pick 3 ingredients (including 1 protein) and we can fire up the stove!',
     }
   }
 
   const ids = ingredients.map((i) => i.id)
   const combo = COMBO_RULES.find((rule) => rule.has.every((id) => ids.includes(id)))
   const last = ingredients[ingredients.length - 1]
-  const message = combo?.message ?? MEMORY_LINES[last.id] ?? '不错的选择！我记下了。'
+  const message = combo?.message ?? MEMORY_LINES[last.id] ?? "Nice choice! I'll remember that."
 
   return {
     message,
