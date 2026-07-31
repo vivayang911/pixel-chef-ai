@@ -10,6 +10,7 @@ interface ResultPreviewProps {
   result: CookingResult
   onBack: () => void
   onRetry: () => void
+  onMemory: () => void
 }
 
 function AnimatedNumber({ value }: { value: number }) {
@@ -34,7 +35,7 @@ const SCORE_BARS: { key: keyof CookingResult['score']; label: string; color: str
 ]
 
 /** Final result screen: animated scores, dish celebration, memory update message. */
-export default function ResultPreview({ result, onBack, onRetry }: ResultPreviewProps) {
+export default function ResultPreview({ result, onBack, onRetry, onMemory }: ResultPreviewProps) {
   const avg = Math.round(
     (result.score.taste + result.score.creativity + result.score.nutrition) / 3,
   )
@@ -148,6 +149,9 @@ export default function ResultPreview({ result, onBack, onRetry }: ResultPreview
           </PixelButton>
           <PixelButton variant="tomato" onClick={onRetry}>
             🔄 再试一次
+          </PixelButton>
+          <PixelButton variant="grape" onClick={onMemory}>
+            📝 Save To My Taste Memory
           </PixelButton>
         </motion.div>
       </Container>

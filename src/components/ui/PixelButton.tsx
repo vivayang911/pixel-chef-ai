@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import type { ReactNode } from 'react'
 
-type Variant = 'tomato' | 'cheese' | 'mint' | 'ghost'
+type Variant = 'tomato' | 'cheese' | 'mint' | 'ghost' | 'grape'
 
 interface PixelButtonProps {
   children: ReactNode
@@ -17,6 +17,7 @@ const variantClasses: Record<Variant, string> = {
   cheese: 'bg-cheese text-ink shadow-pixel hover:bg-[#ffd95e]',
   mint: 'bg-mint text-ink shadow-pixel hover:bg-[#79ecbb]',
   ghost: 'bg-transparent text-cream shadow-pixel-sm hover:bg-ink-line',
+  grape: 'bg-grape text-cream shadow-pixel hover:bg-[#8b70e0]',
 }
 
 /** Tactile, hard-shadowed pixel button with a subtle press animation. */

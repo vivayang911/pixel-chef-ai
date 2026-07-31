@@ -5,10 +5,11 @@ import MemoryKitchen from '@/components/kitchen/MemoryKitchen'
 import CreateDish from '@/pages/CreateDish'
 import CookingStory from '@/pages/CookingStory'
 import ResultPreview from '@/components/cooking/story/ResultPreview'
+import TasteMemoryPage from '@/pages/TasteMemory'
 import type { CookingResult } from '@/engine/cookingEngine'
 import type { Ingredient } from '@/types/food'
 
-type Route = 'home' | 'studio' | 'story' | 'result'
+type Route = 'home' | 'studio' | 'story' | 'result' | 'memory'
 
 export default function App() {
   const [route, setRoute] = useState<Route>('home')
@@ -46,6 +47,16 @@ export default function App() {
             result={cookingResult}
             onBack={() => setRoute('home')}
             onRetry={() => setRoute('studio')}
+            onMemory={() => setRoute('memory')}
+          />
+        )}
+
+        {route === 'memory' && cookingResult && (
+          <TasteMemoryPage
+            result={cookingResult}
+            dish={dish}
+            onBack={() => setRoute('home')}
+            onCookAgain={() => setRoute('studio')}
           />
         )}
       </main>
