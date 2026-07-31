@@ -1,0 +1,153 @@
+/* ================================================================ */
+/*  Pixel Chef AI — Unified Design Tokens                            */
+/*  Warm Pixel Kitchen · Cozy Game Feel                              */
+/* ================================================================ */
+
+:root {
+  /* ── Core Palette ── */
+  --color-ink: #0d0b1f;
+  --color-ink-soft: #15122b;
+  --color-ink-panel: #1d1838;
+  --color-ink-line: #2c2550;
+
+  /* Kitchen warm tones */
+  --color-kitchen-cream: #fdf6e3;
+  --color-kitchen-soft-orange: #ff8c5a;
+  --color-kitchen-pixel-brown: #5a3e2b;
+  --color-kitchen-warm-bg: #1a1428;
+
+  /* Accent */
+  --color-tomato: #ff5277;
+  --color-cheese: #ffcb3b;
+  --color-mint: #5be7a9;
+  --color-sky: #4cc9f0;
+  --color-grape: #b388ff;
+  --color-cream: #fdf6e3;
+
+  /* ── Shadows ── */
+  --shadow-pixel-sm: 4px 4px 0 0 rgba(0, 0, 0, 0.85);
+  --shadow-pixel: 6px 6px 0 0 rgba(0, 0, 0, 0.85);
+  --shadow-pixel-lg: 10px 10px 0 0 rgba(0, 0, 0, 0.85);
+  --shadow-pixel-inset: inset 4px 4px 0 0 rgba(0, 0, 0, 0.35);
+  --shadow-glow-tomato: 0 0 0 2px #ff5277, 6px 6px 0 0 rgba(255, 82, 119, 0.35);
+  --shadow-glow-cheese: 0 0 0 2px #ffcb3b, 6px 6px 0 0 rgba(255, 203, 59, 0.35);
+  --shadow-glow-grape: 0 0 0 2px #b388ff, 6px 6px 0 0 rgba(179, 136, 255, 0.35);
+
+  /* ── Borders ── */
+  --border-pixel: 4px solid var(--color-ink);
+
+  /* ── Typography Scale ── */
+  --font-pixel: 'Press Start 2P', monospace;
+  --font-terminal: 'VT323', monospace;
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  /* ── Sizing ── */
+  --grid-unit: 4px;
+  --radius-pixel: 0px;
+
+  /* ── Z-Index Scale ── */
+  --z-background: 0;
+  --z-content: 10;
+  --z-overlay: 40;
+  --z-tutorial: 50;
+  --z-loader: 50;
+  --z-flying: 60;
+  --z-modal: 70;
+}
+
+/* ── Kitchen background gradient ── */
+.bg-kitchen {
+  background: radial-gradient(
+    ellipse at 50% 30%,
+    rgba(179, 136, 255, 0.12) 0%,
+    rgba(255, 82, 119, 0.06) 40%,
+    transparent 70%
+  );
+}
+
+/* ── Kitchen warm glow overlay ── */
+.kitchen-glow {
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 203, 59, 0.08) 0%,
+    transparent 55%
+  );
+}
+
+/* ── Pixel card (reusable) ── */
+.pixel-card {
+  border: var(--border-pixel);
+  background: var(--color-ink-panel);
+  box-shadow: var(--shadow-pixel);
+}
+
+.pixel-card-cream {
+  border: var(--border-pixel);
+  background: rgba(253, 246, 227, 0.08);
+  box-shadow: var(--shadow-pixel);
+}
+
+/* ── Steam animation ── */
+@keyframes steam-rise {
+  0% {
+    transform: translateY(0) scaleX(1);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-24px) scaleX(1.8);
+    opacity: 0.2;
+  }
+  100% {
+    transform: translateY(-48px) scaleX(2.4);
+    opacity: 0;
+  }
+}
+
+.animate-steam {
+  animation: steam-rise 2.4s ease-out infinite;
+}
+
+/* ── Sparkle animation ── */
+@keyframes sparkle {
+  0%, 100% {
+    transform: scale(0) rotate(0deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1) rotate(180deg);
+    opacity: 0.9;
+  }
+}
+
+.animate-sparkle {
+  animation: sparkle 1.8s ease-in-out infinite;
+}
+
+/* ── Soft float for kitchen ambiance ── */
+@keyframes kitchen-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  33% {
+    transform: translateY(-6px) rotate(1deg);
+  }
+  66% {
+    transform: translateY(-2px) rotate(-1deg);
+  }
+}
+
+.animate-kitchen-float {
+  animation: kitchen-float 5s ease-in-out infinite;
+}
+
+/* ── Page transition helper ── */
+.page-enter {
+  opacity: 0;
+  transform: scale(0.96) translateY(12px);
+}
+
+.page-active {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition: opacity 0.35s ease-out, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}

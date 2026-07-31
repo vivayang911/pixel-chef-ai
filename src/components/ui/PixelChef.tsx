@@ -1,9 +1,45 @@
+import { useState, useEffect } from 'react'
+
 interface PixelChefProps {
   className?: string
 }
 
-/** Hand-built pixel-art chef mascot as crisp-edges SVG (scales sharply). */
+/** Hand-built pixel-art chef mascot with idle blinking animation (crisp-edges SVG). */
 export default function PixelChef({ className = '' }: PixelChefProps) {
+  const [blink, setBlink] = useState(false)
+
+  useEffect(() => {
+    const schedule = () => {
+      // Blink every 3-5 seconds
+      const delay = 3000 + Math.random() * 4000
+      const blinkLength = 150
+
+      const blinkTimer = setTimeout(() => {
+        setBlink(true)
+        setTimeout(() => setBlink(false), blinkLength)
+      }, delay)
+
+      return blinkTimer
+    }
+
+    let timer: ReturnType<typeof setTimeout>
+    const loop = () => {
+      timer = schedule()
+    }
+    loop()
+
+    // Re-schedule after each blink
+    const observer = setInterval(() => {
+      clearTimeout(timer)
+      loop()
+    }, 6000)
+
+    return () => {
+      clearTimeout(timer)
+      clearInterval(observer)
+    }
+  }, [])
+
   return (
     <svg
       viewBox="0 0 64 64"
@@ -21,9 +57,18 @@ export default function PixelChef({ className = '' }: PixelChefProps) {
       {/* Face */}
       <rect x="18" y="26" width="28" height="20" fill="#ffcb3b" />
       <rect x="18" y="26" width="28" height="3" fill="#0d0b1f" />
-      {/* Eyes */}
-      <rect x="24" y="32" width="4" height="4" fill="#0d0b1f" />
-      <rect x="36" y="32" width="4" height="4" fill="#0d0b1f" />
+      {/* Eyes — squint on blink */}
+      {blink ? (
+        <>
+          <rect x="24" y="34" width="4" height="1" fill="#0d0b1f" />
+          <rect x="36" y="34" width="4" height="1" fill="#0d0b1f" />
+        </>
+      ) : (
+        <>
+          <rect x="24" y="32" width="4" height="4" fill="#0d0b1f" />
+          <rect x="36" y="32" width="4" height="4" fill="#0d0b1f" />
+        </>
+      )}
       {/* Cheeks */}
       <rect x="22" y="38" width="4" height="3" fill="#ff5277" />
       <rect x="38" y="38" width="4" height="3" fill="#ff5277" />

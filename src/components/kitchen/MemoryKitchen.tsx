@@ -1,11 +1,18 @@
 import { motion, type Variants } from 'framer-motion'
 import Container from '@/components/ui/Container'
 import PixelButton from '@/components/ui/PixelButton'
+import PixelChef from '@/components/ui/PixelChef'
 import PixelFridge from './PixelFridge'
 import SpeechBubble from './SpeechBubble'
 
 const WELCOME =
   "Hi Chef! I'm PIXEL, your AI sous-chef. Crack open the fridge, toss me what you've got, and I'll remix it into a 16-bit masterpiece. Ready to cook?"
+
+const STATUS_TIPS = [
+  "Ready to create your comfort food?",
+  "Open the fridge, let's see what we've got!",
+  "I remember your favorite flavors…",
+]
 
 const titleContainer: Variants = {
   hidden: {},
@@ -28,20 +35,32 @@ function StaggerText({ text, className = '' }: { text: string; className?: strin
     >
       {text.split('').map((c, i) => (
         <motion.span key={i} variants={letter} className="inline-block" aria-hidden>
-          {c === ' ' ? ' ' : c}
+          {c === ' ' ? '\u00A0' : c}
         </motion.span>
       ))}
     </motion.span>
   )
 }
 
+/* Enhanced ambient particles — more variety for a richer kitchen feel */
 const PARTICLES = [
-  { c: 'bg-tomato', x: '10%', y: '20%', s: 10 },
-  { c: 'bg-cheese', x: '82%', y: '14%', s: 8 },
-  { c: 'bg-mint', x: '72%', y: '72%', s: 12 },
-  { c: 'bg-sky', x: '18%', y: '76%', s: 9 },
-  { c: 'bg-grape', x: '52%', y: '8%', s: 7 },
-  { c: 'bg-cream', x: '90%', y: '54%', s: 6 },
+  { c: 'bg-tomato', x: '8%', y: '18%', s: 10, duration: 4.2 },
+  { c: 'bg-cheese', x: '82%', y: '10%', s: 8, duration: 5.1 },
+  { c: 'bg-mint', x: '72%', y: '68%', s: 12, duration: 4.8 },
+  { c: 'bg-sky', x: '16%', y: '72%', s: 9, duration: 5.5 },
+  { c: 'bg-grape', x: '48%', y: '6%', s: 7, duration: 3.8 },
+  { c: 'bg-cream', x: '90%', y: '50%', s: 6, duration: 4.5 },
+  { c: 'bg-tomato/50', x: '34%', y: '82%', s: 5, duration: 5.9 },
+  { c: 'bg-cheese/50', x: '56%', y: '76%', s: 8, duration: 4.1 },
+]
+
+/* Tiny sparkle stars */
+const STARS = [
+  { x: '12%', y: '22%', delay: 0 },
+  { x: '62%', y: '14%', delay: 0.7 },
+  { x: '78%', y: '60%', delay: 1.3 },
+  { x: '28%', y: '74%', delay: 1.9 },
+  { x: '44%', y: '30%', delay: 0.4 },
 ]
 
 interface MemoryKitchenProps {
@@ -51,14 +70,58 @@ interface MemoryKitchenProps {
 export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
   return (
     <section id="top" className="relative overflow-hidden pb-12 pt-10 sm:pt-16">
+      {/* Kitchen warm glow */}
+      <div className="pointer-events-none absolute inset-0 bg-kitchen" />
+
+      {/* Steam wisps */}
+      {[0, 1, 2].map((i) => (
+        <motion.span
+          key={`steam-${i}`}
+          className="pointer-events-none absolute top-1/2 block h-10 w-1 rounded-none bg-cream/10 blur-sm"
+          style={{ left: `${52 + i * 6}%` }}
+          animate={{
+            y: [0, -40, -80],
+            opacity: [0, 0.3, 0],
+            scaleX: [1, 1.8, 2.5],
+          }}
+          transition={{
+            duration: 3.2 + i * 0.6,
+            repeat: Infinity,
+            delay: i * 1.1,
+            ease: 'easeOut',
+          }}
+        />
+      ))}
+
       {/* Ambient floating pixel particles */}
       {PARTICLES.map((p, i) => (
         <motion.span
           key={i}
           className={`pointer-events-none absolute ${p.c}`}
           style={{ left: p.x, top: p.y, width: p.s, height: p.s }}
-          animate={{ y: [0, -14, 0], opacity: [0.4, 0.9, 0.4] }}
-          transition={{ duration: 4 + i, repeat: Infinity, ease: 'easeInOut' }}
+          animate={{ y: [0, -18, 0], opacity: [0.3, 0.85, 0.3] }}
+          transition={{ duration: p.duration, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
+        />
+      ))}
+
+      {/* Pixel sparkle stars */}
+      {STARS.map((star, i) => (
+        <motion.span
+          key={`star-${i}`}
+          className="pointer-events-none absolute block h-2.5 w-2.5 bg-cheese"
+          style={{ left: star.x, top: star.y }}
+          animate={{
+            scale: [0, 1, 0],
+            rotate: [0, 45, 90],
+            opacity: [0, 0.85, 0],
+          }}
+          transition={{
+            duration: 2.2,
+            repeat: Infinity,
+            delay: star.delay,
+            ease: 'easeInOut',
+            repeatDelay: 3,
+          }}
         />
       ))}
 
@@ -94,6 +157,16 @@ export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
             <SpeechBubble text={WELCOME} />
           </div>
 
+          {/* PIXEL status tip */}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1.8, duration: 0.5 }}
+            className="mt-4 font-terminal text-lg text-cream/50"
+          >
+            {STATUS_TIPS[0]}
+          </motion.p>
+
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -114,7 +187,48 @@ export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
           transition={{ duration: 0.6 }}
           className="relative flex justify-center py-10"
         >
+          {/* Kitchen counter glow behind fridge */}
+          <div className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-kitchen-cream/5 blur-3xl" />
+
           <PixelFridge />
+
+          {/* Enhanced PIXEL mascot — larger, floating, blinking */}
+          <motion.div
+            className="absolute -bottom-12 -right-8 sm:-bottom-14 sm:-right-10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{
+              opacity: 1,
+              y: [0, -6, 0],
+            }}
+            transition={{
+              opacity: { delay: 0.5, type: 'spring', stiffness: 200, damping: 16 },
+              y: { duration: 3.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 },
+            }}
+          >
+            <div className="relative">
+              <PixelChef className="h-20 w-20 sm:h-24 sm:w-24" />
+              {/* Hand wave */}
+              <motion.div
+                className="absolute -right-2 top-2"
+                style={{ transformOrigin: 'bottom center' }}
+                animate={{ rotate: [-12, 16, -12] }}
+                transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <svg
+                  viewBox="0 0 10 10"
+                  className="h-5 w-5"
+                  shapeRendering="crispEdges"
+                  aria-hidden="true"
+                >
+                  <rect x="3" y="2" width="4" height="5" fill="#ffcb3b" />
+                  <rect x="2" y="6" width="6" height="3" fill="#ffcb3b" />
+                  <rect x="2" y="8" width="1" height="1" fill="#0d0b1f" />
+                  <rect x="4" y="8" width="1" height="1" fill="#0d0b1f" />
+                  <rect x="6" y="8" width="1" height="1" fill="#0d0b1f" />
+                </svg>
+              </motion.div>
+            </div>
+          </motion.div>
         </motion.div>
       </Container>
     </section>
