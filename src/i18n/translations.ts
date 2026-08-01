@@ -3,8 +3,9 @@ export const translations = {
     home: {
       title: 'Pixel Chef AI',
       subtitle: 'A Memory Kitchen That Learns Your Taste',
-      tagline: 'Your 16-bit AI cooking companion. Open the fridge and let PIXEL remix your leftovers into legendary pixel recipes.',
+      tagline: 'Your AI kitchen companion that remembers your taste, understands your goals, and creates meals from what you already have.',
       chefGreeting: "Hi Chef! I'm PIXEL, your AI sous-chef. Crack open the fridge, toss me what you've got, and I'll remix it into a 16-bit masterpiece. Ready to cook?",
+      demoGreeting: "Hi Chef!\nI remember your taste.\nLet me turn today's ingredients into something you'll love.",
       statusReady: 'Ready to create your comfort food?',
       statusFridge: "Open the fridge, let's see what we've got!",
       statusMemory: 'I remember your favorite flavors…',
@@ -157,8 +158,9 @@ export const translations = {
     home: {
       title: '像素大厨 AI',
       subtitle: '学习你口味的记忆厨房',
-      tagline: '你的 16 位 AI 烹饪伙伴。打开冰箱，让 PIXEL 把你的食材变成传奇像素料理。',
+      tagline: '你的 AI 厨房伴侣，记住你的口味，理解你的目标，用现有食材创造家常料理。',
       chefGreeting: '嗨大厨！我是 PIXEL，你的 AI 副厨。打开冰箱，把你手头的食材丢给我，我帮你变出一道 16 位像素大作。准备好了吗？',
+      demoGreeting: '嗨大厨！\n我记得你的口味。\n让我用今天的食材做出你会喜欢的料理。',
       statusReady: '准备好做你的暖心料理了吗？',
       statusFridge: '打开冰箱，看看有什么好吃的！',
       statusMemory: '我还记得你最爱的味道…',
@@ -311,8 +313,9 @@ export const translations = {
     home: {
       title: 'ピクセルシェフ AI',
       subtitle: 'あなたの味を覚えるメモリーキッチン',
-      tagline: '16ビットの AI 料理パートナー。冷蔵庫を開けて、PIXEL があなたの食材を伝説のピクセル料理にアレンジします。',
+      tagline: 'あなたの味を覚え、目標を理解し、あるもので最高の料理を作る AI キッチンパートナー。',
       chefGreeting: 'シェフ、こんにちは！PIXELです、あなたのAI副料理長。冷蔵庫にあるもの、なんでもいいから放り込んで。16ビットの名作に仕上げるよ。準備できた？',
+      demoGreeting: 'こんにちは、シェフ！\nあなたの味、覚えています。\n今日の食材で、きっと気に入るものを作ります。',
       statusReady: '思い出の一皿、作ってみない？',
       statusFridge: '冷蔵庫を開けて、何があるか見てみよう！',
       statusMemory: 'あなたの大好きな味、覚えてるよ…',

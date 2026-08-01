@@ -5,6 +5,7 @@ import PixelButton from '@/components/ui/PixelButton'
 import PixelChef from '@/components/ui/PixelChef'
 import PixelFridge from './PixelFridge'
 import SpeechBubble from './SpeechBubble'
+import AIAssistantBadge from '@/components/ai/AIAssistantBadge'
 import { useLanguage } from '@/i18n/LanguageContext'
 import { getRandomPhrase } from '@/engine/aiChefEngine'
 import { useAICompanion } from '@/engine/aiCompanionContext'
@@ -57,9 +58,10 @@ const STARS = [
 
 interface MemoryKitchenProps {
   onStart?: () => void
+  onWatchDemo?: () => void
 }
 
-export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
+export default function MemoryKitchen({ onStart, onWatchDemo }: MemoryKitchenProps) {
   const { t, lang } = useLanguage()
   const { setMood, showMessage } = useAICompanion()
   const [hasMemory, setHasMemory] = useState(false)
@@ -93,7 +95,7 @@ export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
 
   const greetingText = hasMemory
     ? getRandomPhrase(lang)
-    : t('home.chefGreeting')
+    : t('home.demoGreeting')
   const statusText = hasMemory
     ? t('home.statusMemory')
     : t('home.statusReady')
@@ -190,16 +192,28 @@ export default function MemoryKitchen({ onStart }: MemoryKitchenProps) {
             {statusText}
           </motion.p>
 
+          {/* AI Identity Panel */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 2.0, duration: 0.5 }}
+            className="mt-4"
+          >
+            <AIAssistantBadge />
+          </motion.div>
+
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 2.2, duration: 0.5 }}
+            transition={{ delay: 2.4, duration: 0.5 }}
             className="mt-8 flex flex-wrap gap-4"
           >
             <PixelButton variant="tomato" onClick={onStart}>
               {t('home.startCooking')}
             </PixelButton>
-            <PixelButton variant="ghost">{t('home.watchDemo')}</PixelButton>
+            <PixelButton variant="ghost" onClick={onWatchDemo}>
+              {t('home.watchDemo')}
+            </PixelButton>
           </motion.div>
         </div>
 

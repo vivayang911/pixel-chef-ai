@@ -27,6 +27,8 @@ interface FlyingItem {
 interface CreateDishProps {
   onBack: () => void
   onStartCooking: (dish: Ingredient[]) => void
+  /** When provided, auto-selects these ingredients on mount (demo mode) */
+  autoSelectIngredients?: Ingredient[]
 }
 
 const AMBIENT = [
@@ -37,11 +39,16 @@ const AMBIENT = [
 ]
 
 /** The AI Memory Cooking Studio: pick ingredients, feed the pot, get memory advice. */
-export default function CreateDish({ onBack, onStartCooking }: CreateDishProps) {
+export default function CreateDish({
+  onBack,
+  onStartCooking,
+  autoSelectIngredients,
+}: CreateDishProps) {
   const { t, lang } = useLanguage()
   const { setMood, showMessage } = useAICompanion()
   const [selected, setSelected] = useState<Ingredient[]>([])
   const [flying, setFlying] = useState<FlyingItem[]>([])
+  const [demoAutoStarted, setDemoAutoStarted] = useState(false)
   const potRef = useRef<HTMLDivElement>(null)
   const flySeq = useRef(0)
   const prevLenRef = useRef(0)
@@ -59,6 +66,33 @@ export default function CreateDish({ onBack, onStartCooking }: CreateDishProps) 
   useEffect(() => {
     setMood('curious')
   }, [setMood])
+
+  // Auto-select ingredients for demo mode
+  useEffect(() => {
+    if (autoSelectIngredients && autoSelectIngredients.length > 0 && !demoAutoStarted) {
+      setDemoAutoStarted(true)
+      // Select ingredients one by one with delays for visual effect
+      autoSelectIngredients.forEach((ing, i) => {
+        setTimeout(() => {
+          setSelected((prev) => {
+            if (prev.find((s) => s.id === ing.id)) return prev
+            return [...prev, ing]
+          })
+          showMessage(`Adding ${ing.name}... 🔍`, 2000)
+        }, 500 + i * 600)
+      })
+      // Auto-trigger cooking after all ingredients are added
+      setTimeout(() => {
+        setSelected((prev) => {
+          if (prev.length >= 3 && prev.some((s) => s.category === 'protein')) {
+            // Delay the actual call to allow state to settle
+            setTimeout(() => onStartCooking(prev), 600)
+          }
+          return prev
+        })
+      }, 500 + autoSelectIngredients.length * 600 + 800)
+    }
+  }, [autoSelectIngredients, demoAutoStarted, showMessage, onStartCooking])
 
   // AI Companion: show ingredient choice message when adding new ingredient
   useEffect(() => {

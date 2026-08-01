@@ -25,6 +25,8 @@ import { useAICompanion } from '@/engine/aiCompanionContext'
 interface CookingStoryProps {
   dish: Ingredient[]
   onFinish: (result: CookingResult) => void
+  /** When true, auto-enables AI cooking mode (demo) */
+  autoCook?: boolean
 }
 
 /* ------------------------------------------------------------------ */
@@ -51,7 +53,7 @@ type StoryPhase = 'intro' | 'cooking' | 'finishing'
 /*  CookingStory — the full cooking simulation                         */
 /* ------------------------------------------------------------------ */
 
-export default function CookingStory({ dish, onFinish }: CookingStoryProps) {
+export default function CookingStory({ dish, onFinish, autoCook }: CookingStoryProps) {
   // --- State ---
   const { t, lang } = useLanguage()
   const { setMood, showMessage } = useAICompanion()
@@ -62,7 +64,7 @@ export default function CookingStory({ dish, onFinish }: CookingStoryProps) {
   const [activeEvent, setActiveEvent] = useState<CookingEventDef | null>(null)
   const [aiText, setAiText] = useState('')
   const [firedEvents, setFiredEvents] = useState<CookingEventType[]>([])
-  const [aiAutoMode, setAiAutoMode] = useState(false)
+  const [aiAutoMode, setAiAutoMode] = useState(autoCook ?? false)
   const [showAutoPanel, setShowAutoPanel] = useState(false)
   const [autoProgress, setAutoProgress] = useState(0)
   const [aiBonus, setAiBonus] = useState(0)

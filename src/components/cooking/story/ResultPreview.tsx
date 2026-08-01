@@ -407,6 +407,39 @@ const PixelDishDisplay = memo(function PixelDishDisplay({
   )
 })
 
+const AIDecisionCheck = memo(function AIDecisionCheck({
+  text,
+  show,
+  delay,
+}: {
+  text: string
+  show: boolean
+  delay: number
+}) {
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          className="flex items-center gap-3 px-3 py-2 border border-cream/5"
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay }}
+        >
+          <motion.span
+            className="text-green-400 text-sm flex-shrink-0"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: 'spring', delay: delay + 0.2 }}
+          >
+            ✓
+          </motion.span>
+          <span className="text-cream/70 text-xs font-mono">{text}</span>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+})
+
 /* ------------------------------------------------------------------ */
 /*  Derivation Helpers                                                 */
 /* ------------------------------------------------------------------ */
@@ -782,6 +815,39 @@ export default function ResultPreview({
         {/* AI Chef Story */}
         <AIStorySection story={aiStory} show={isAtLeast('story')} />
 
+        {/* WHY AI CREATED THIS — key decision summary */}
+        <AnimatePresence>
+          {isAtLeast('decisions') && (
+            <motion.div
+              className="mt-5 px-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              <p className="text-cream/50 text-[10px] uppercase tracking-widest font-mono mb-3">
+                WHY AI CREATED THIS
+              </p>
+              <div className="space-y-2">
+                <AIDecisionCheck
+                  text="Balanced protein and vegetables"
+                  show={isAtLeast('decisions')}
+                  delay={0.2}
+                />
+                <AIDecisionCheck
+                  text="Adjusted flavor based on your taste preference"
+                  show={isAtLeast('decisions')}
+                  delay={0.4}
+                />
+                <AIDecisionCheck
+                  text="Optimized nutrition balance for your health goal"
+                  show={isAtLeast('decisions')}
+                  delay={0.6}
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Flavor Decision Panel */}
         <AnimatePresence>
           {isAtLeast('decisions') && (
@@ -789,7 +855,7 @@ export default function ResultPreview({
               className="mt-5 px-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
             >
               <p className="text-cream/50 text-[10px] uppercase tracking-widest font-mono mb-3">
                 {t('result.aiDecisionLog')}
