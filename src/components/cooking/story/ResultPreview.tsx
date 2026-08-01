@@ -321,6 +321,10 @@ const FlavorDecisionCard = memo(function FlavorDecisionCard({
 /*  Pixel Dish SVG (larger, for result page)                          */
 /* ------------------------------------------------------------------ */
 
+/** ViewBox center constants — all layer coords offset to center in the SVG */
+const VB_CX = 90
+const VB_CY = 100
+
 const PixelDishDisplay = memo(function PixelDishDisplay({
   config,
 }: {
@@ -339,8 +343,8 @@ const PixelDishDisplay = memo(function PixelDishDisplay({
         return (
           <circle
             {...commonProps}
-            cx={layer.x + (config.layers.find((l) => l.type === 'base')?.width ?? 90)}
-            cy={layer.y + 90}
+            cx={layer.x + VB_CX}
+            cy={layer.y + VB_CY}
             r={layer.width / 2}
           />
         )
@@ -348,8 +352,8 @@ const PixelDishDisplay = memo(function PixelDishDisplay({
         return (
           <ellipse
             {...commonProps}
-            cx={layer.x + (config.layers.find((l) => l.type === 'base')?.width ?? 90)}
-            cy={layer.y + 90}
+            cx={layer.x + VB_CX}
+            cy={layer.y + VB_CY}
             rx={layer.width / 2}
             ry={layer.height / 2}
           />
@@ -358,8 +362,8 @@ const PixelDishDisplay = memo(function PixelDishDisplay({
         return (
           <rect
             {...commonProps}
-            x={layer.x + (config.layers.find((l) => l.type === 'base')?.width ?? 90) - layer.width / 2}
-            y={layer.y + 90 - layer.height / 2}
+            x={layer.x + VB_CX - layer.width / 2}
+            y={layer.y + VB_CY - layer.height / 2}
             width={layer.width}
             height={layer.height}
             rx={3}
@@ -369,15 +373,15 @@ const PixelDishDisplay = memo(function PixelDishDisplay({
         return (
           <polygon
             {...commonProps}
-            points={`${layer.x + (config.layers.find((l) => l.type === 'base')?.width ?? 90)},${layer.y + 90 - layer.height / 2} ${layer.x + (config.layers.find((l) => l.type === 'base')?.width ?? 90) - layer.width / 2},${layer.y + 90 + layer.height / 2} ${layer.x + (config.layers.find((l) => l.type === 'base')?.width ?? 90) + layer.width / 2},${layer.y + 90 + layer.height / 2}`}
+            points={`${layer.x + VB_CX},${layer.y + VB_CY - layer.height / 2} ${layer.x + VB_CX - layer.width / 2},${layer.y + VB_CY + layer.height / 2} ${layer.x + VB_CX + layer.width / 2},${layer.y + VB_CY + layer.height / 2}`}
           />
         )
       case 'ribbon':
         return (
           <rect
             {...commonProps}
-            x={layer.x + (config.layers.find((l) => l.type === 'base')?.width ?? 90) - layer.width / 2}
-            y={layer.y + 90 - layer.height / 2}
+            x={layer.x + VB_CX - layer.width / 2}
+            y={layer.y + VB_CY - layer.height / 2}
             width={layer.width}
             height={layer.height}
             rx={layer.height / 2}
@@ -391,20 +395,147 @@ const PixelDishDisplay = memo(function PixelDishDisplay({
   return (
     <svg
       viewBox="0 0 180 200"
-      className="w-full h-auto max-w-[200px] mx-auto drop-shadow-[0_0_20px_rgba(168,85,247,0.3)]"
-      style={{ imageRendering: 'pixelated' }}
+      className="w-full h-auto max-w-[300px] sm:max-w-[340px] md:max-w-[380px] mx-auto"
+      style={{
+        imageRendering: 'pixelated',
+        filter: 'drop-shadow(0 0 24px rgba(168,85,247,0.35)) drop-shadow(0 0 8px rgba(251,191,36,0.2))',
+        minHeight: 'clamp(200px, 40vh, 380px)',
+      }}
     >
       <defs>
         <filter id="pixelate">
-          <feFlood x="0" y="0" width="3" height="3" />
-          <feComposite width="3" height="3" />
+          <feFlood x="0" y="0" width="4" height="4" />
+          <feComposite width="4" height="4" />
           <feTile result="a" />
           <feComposite in="SourceGraphic" in2="a" operator="in" />
-          <feMorphology operator="dilate" radius="0.5" />
+          <feMorphology operator="dilate" radius="0.8" />
         </filter>
       </defs>
       {config.layers.map((layer, i) => shapeRenderer(layer, i))}
     </svg>
+  )
+})
+
+/* ------------------------------------------------------------------ */
+/*  Fallback Pixel Dish — guaranteed visual for every completed dish  */
+/* ------------------------------------------------------------------ */
+
+/** Maps ingredient categories to emoji representations */
+const DISH_EMOJI: Record<string, string> = {
+  pork: '🥓',
+  'pork belly': '🥩',
+  beef: '🥩',
+  chicken: '🍗',
+  salmon: '🍣',
+  tuna: '🐟',
+  tofu: '🧈',
+  egg: '🥚',
+  rice: '🍚',
+  noodle: '🍜',
+  ramen: '🍜',
+  bread: '🍞',
+  lettuce: '🥬',
+  tomato: '🍅',
+  broccoli: '🥦',
+  carrot: '🥕',
+  corn: '🌽',
+  potato: '🥔',
+  mushroom: '🍄',
+  cheese: '🧀',
+  default: '🍲',
+}
+
+/** Maps cooking method to container emoji */
+const METHOD_BOWL: Record<string, string> = {
+  boil: '🍲',
+  steam: '🥟',
+  stir_fry: '🥘',
+  fry: '🍳',
+  grill: '🥩',
+  bake: '🫕',
+  raw: '🍣',
+  default: '🍽️',
+}
+
+function getDishEmojis(ingredients: readonly Ingredient[]): string[] {
+  const emojis = ingredients
+    .map((ing) => {
+      const key = ing.name.toLowerCase().trim()
+      return DISH_EMOJI[key] ?? ing.emoji ?? DISH_EMOJI.default
+    })
+    .slice(0, 5)
+  return emojis.length > 0 ? emojis : [DISH_EMOJI.default]
+}
+
+const FallbackPixelDish = memo(function FallbackPixelDish({
+  ingredients,
+  method,
+  containerLabel,
+}: {
+  ingredients: readonly Ingredient[]
+  method: string
+  containerLabel: string
+}) {
+  const emojis = getDishEmojis(ingredients)
+  const bowl = METHOD_BOWL[method] ?? METHOD_BOWL.default
+
+  return (
+    <div
+      className="w-full flex items-center justify-center"
+      style={{ minHeight: 'clamp(140px, 30vh, 300px)' }}
+      aria-hidden="true"
+    >
+      <div
+        className="relative flex flex-col items-center justify-center"
+        style={{
+          imageRendering: 'pixelated',
+          filter:
+            'drop-shadow(0 0 16px rgba(168,85,247,0.3)) drop-shadow(0 0 6px rgba(251,191,36,0.2))',
+        }}
+      >
+        {/* Bowl / plate emoji background */}
+        <div className="text-center leading-none" style={{ fontSize: 'clamp(80px, 20vw, 160px)' }}>
+          {bowl}
+        </div>
+
+        {/* Ingredient emojis layered above */}
+        <div
+          className="absolute inset-0 flex items-center justify-center flex-wrap gap-1"
+          style={{
+            padding: '8px',
+            fontSize: 'clamp(24px, 6vw, 52px)',
+            lineHeight: 1,
+          }}
+        >
+          {emojis.map((emoji, i) => (
+            <motion.span
+              key={i}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{
+                duration: 0.4,
+                delay: 0.5 + i * 0.15,
+                type: 'spring',
+                stiffness: 200,
+              }}
+              className="inline-block"
+            >
+              {emoji}
+            </motion.span>
+          ))}
+        </div>
+
+        {/* Container label below */}
+        <div
+          className="mt-1 px-3 py-0.5 rounded bg-cream/10 border border-cream/15"
+          style={{ fontSize: 'clamp(10px, 1.5vw, 13px)' }}
+        >
+          <span className="text-cream/60 font-mono tracking-wider uppercase">
+            {containerLabel}
+          </span>
+        </div>
+      </div>
+    </div>
   )
 })
 
@@ -513,7 +644,29 @@ export default function ResultPreview({
 
   // Generate all data
   const dishVisual = useMemo(
-    () => generateDishVisual(ingredients, method, flavorProfile, result.score.taste),
+    () => {
+      const visual = generateDishVisual(ingredients, method, flavorProfile, result.score.taste)
+      console.log('[ResultPreview] dishVisual:', {
+        layers: visual.layers?.length,
+        containerLabel: visual.containerLabel,
+        dishTitle: visual.dishTitle,
+        effect: visual.effect,
+        method: visual.method,
+        baseColor: visual.baseColor,
+        accentColor: visual.accentColor,
+        layersDetail: visual.layers?.map(l => ({
+          type: l.type,
+          shape: l.shape,
+          x: l.x,
+          y: l.y,
+          width: l.width,
+          height: l.height,
+          color: l.color,
+          emoji: l.emoji,
+        })),
+      })
+      return visual
+    },
     [ingredients, method, flavorProfile, result.score.taste],
   )
 
@@ -728,6 +881,13 @@ export default function ResultPreview({
                 )}
 
                 <PixelDishDisplay config={dishVisual} />
+
+                {/* Fallback emoji dish — guaranteed visual layer */}
+                <FallbackPixelDish
+                  ingredients={ingredients}
+                  method={method}
+                  containerLabel={dishVisual.containerLabel}
+                />
               </motion.div>
             )}
           </AnimatePresence>
