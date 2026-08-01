@@ -1,221 +1,840 @@
-import { useEffect, useState, useMemo } from 'react'
-import { motion } from 'framer-motion'
-import Container from '@/components/ui/Container'
-import PixelPanel from '@/components/ui/PixelPanel'
-import PixelButton from '@/components/ui/PixelButton'
-import PixelChefAnimation from './PixelChefAnimation'
-import PixelDishArtwork from '@/components/cooking/result/PixelDishArtwork'
-import TypingText from '@/components/ai/TypingText'
-import { useLanguage } from '@/i18n/LanguageContext'
-import { useAICompanion } from '@/engine/aiCompanionContext'
-import { generateDishVisual, generateDishReview } from '@/engine/dishImageEngine'
+import { useState, useEffect, useMemo, memo, useCallback } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import type { CookingResult } from '@/engine/cookingEngine'
 import type { Ingredient } from '@/types/food'
+import {
+  generateDishVisual,
+  generateAIStory,
+  generateFlavorDecisions,
+  generateSmokeParticles,
+  generatePixelParticles,
+} from '@/engine/dishImageEngine'
+import type {
+  DishVisualConfig,
+  AIStory,
+  FlavorDecision,
+  SmokeParticle,
+  PixelParticle,
+} from '@/engine/dishImageEngine'
+import PixelPanel from '@/components/ui/PixelPanel'
+import PixelButton from '@/components/ui/PixelButton'
+import { useLanguage } from '@/i18n/LanguageContext'
 
-interface ResultPreviewProps {
+/* ------------------------------------------------------------------ */
+/*  Types                                                              */
+/* ------------------------------------------------------------------ */
+
+interface Props {
   result: CookingResult
   ingredients: Ingredient[]
-  onBack: () => void
+  method?: string
+  flavorProfile?: string
+  onFinish?: () => void
   onRetry: () => void
-  onMemory: () => void
+  onBack?: () => void
+  onMemory?: () => void
 }
 
-function AnimatedNumber({ value }: { value: number }) {
-  const [n, setN] = useState(0)
-  useEffect(() => {
-    let start = 0
-    const step = Math.ceil(value / 30)
-    const id = setInterval(() => {
-      start = Math.min(start + step, value)
-      setN(start)
-      if (start >= value) clearInterval(id)
-    }, 30)
-    return () => clearInterval(id)
-  }, [value])
-  return <span className="font-pixel text-2xl text-cream">{n}</span>
+type RevealStage = 'dark' | 'smoke' | 'reveal' | 'particles' | 'celebrate' | 'score' | 'story' | 'decisions' | 'actions'
+
+const STAGE_ORDER: RevealStage[] = [
+  'dark',
+  'smoke',
+  'reveal',
+  'particles',
+  'celebrate',
+  'score',
+  'story',
+  'decisions',
+  'actions',
+]
+
+const STAGE_DELAYS: Record<RevealStage, number> = {
+  dark: 800,
+  smoke: 1200,
+  reveal: 1000,
+  particles: 800,
+  celebrate: 600,
+  score: 800,
+  story: 600,
+  decisions: 600,
+  actions: 400,
 }
 
-/** Final result screen: animated scores, pixel artwork, AI review, memory save. */
-export default function ResultPreview({ result, ingredients, onBack, onRetry, onMemory }: ResultPreviewProps) {
-  const { t } = useLanguage()
-  const { setMood, showMessage } = useAICompanion()
+/* ------------------------------------------------------------------ */
+/*  Sub-components                                                     */
+/* ------------------------------------------------------------------ */
 
-  // AI Companion: set mood and message based on result
-  useEffect(() => {
-    if (result.success) {
-      setMood('celebrate')
-      showMessage(t('companion.success'), 8000)
-    } else {
-      setMood('comfort')
-      showMessage(t('companion.failure'), 8000)
+const SmokeEffect = memo(function SmokeEffect({ particles }: { particles: SmokeParticle[] }) {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-full bg-cream/20"
+          style={{
+            left: `calc(50% + ${p.x}px)`,
+            bottom: '20%',
+            width: p.size,
+            height: p.size * 0.7,
+          }}
+          initial={{ opacity: 0, y: 0, scale: 0.3 }}
+          animate={{
+            opacity: [0, p.opacity, 0],
+            y: p.y,
+            scale: [0.3, 1.5, 2.5],
+            x: p.drift,
+          }}
+          transition={{
+            duration: p.duration,
+            delay: p.delay,
+            ease: 'easeOut',
+          }}
+        />
+      ))}
+    </div>
+  )
+})
+
+const PixelBurst = memo(function PixelBurst({
+  particles,
+  show,
+}: {
+  particles: PixelParticle[]
+  show: boolean
+}) {
+  return (
+    <div className="absolute inset-0 pointer-events-none overflow-hidden">
+      <AnimatePresence>
+        {show &&
+          particles.map((p) => (
+            <motion.div
+              key={p.id}
+              className="absolute rounded-sm"
+              style={{
+                backgroundColor: p.color,
+                width: p.size,
+                height: p.size,
+                left: '50%',
+                top: '42%',
+              }}
+              initial={{ x: 0, y: 0, opacity: 1, scale: 0 }}
+              animate={{
+                x: Math.cos(p.angle) * p.distance,
+                y: Math.sin(p.angle) * p.distance,
+                opacity: 0,
+                scale: 1,
+              }}
+              exit={{ opacity: 0, scale: 0 }}
+              transition={{
+                duration: p.duration,
+                delay: p.delay,
+                ease: 'easeOut',
+              }}
+            />
+          ))}
+      </AnimatePresence>
+    </div>
+  )
+})
+
+const ChefCelebration = memo(function ChefCelebration({ show }: { show: boolean }) {
+  const emojis = ['🎉', '✨', '👨‍🍳', '🔥', '⭐', '💫', '🌟', '🎊']
+
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          className="absolute top-[-60px] left-1/2 -translate-x-1/2 flex items-center gap-1 pointer-events-none"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          {emojis.map((emoji, i) => (
+            <motion.span
+              key={i}
+              className="text-2xl"
+              initial={{ y: 0, scale: 0 }}
+              animate={{
+                y: [0, -20, 0],
+                scale: [0, 1, 1, 0],
+              }}
+              transition={{
+                duration: 2,
+                delay: i * 0.12,
+                repeat: Infinity,
+                repeatDelay: 1.5,
+              }}
+            >
+              {emoji}
+            </motion.span>
+          ))}
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+})
+
+const ScoreBar = memo(function ScoreBar({
+  label,
+  score,
+  color,
+  delay,
+  show,
+}: {
+  label: string
+  score: number
+  color: string
+  delay: number
+  show: boolean
+}) {
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          className="flex items-center gap-3"
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay }}
+        >
+          <span className="text-cream/80 text-xs w-20 text-right font-mono uppercase tracking-wider">
+            {label}
+          </span>
+          <div className="flex-1 h-3 bg-ink/60 rounded-sm border border-cream/10 overflow-hidden relative">
+            <motion.div
+              className="h-full rounded-sm"
+              style={{ backgroundColor: color }}
+              initial={{ width: 0 }}
+              animate={{ width: `${score}%` }}
+              transition={{ duration: 1, delay: delay + 0.3, ease: 'easeOut' }}
+            />
+            {/* Pixel notch markers */}
+            {[25, 50, 75].map((notch) => (
+              <div
+                key={notch}
+                className="absolute top-0 h-full w-px bg-ink/40"
+                style={{ left: `${notch}%` }}
+              />
+            ))}
+          </div>
+          <motion.span
+            className="text-cream font-mono text-sm w-8 text-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3, delay: delay + 1 }}
+          >
+            {score}
+          </motion.span>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+})
+
+const AIStorySection = memo(function AIStorySection({
+  story,
+  show,
+}: {
+  story: AIStory
+  show: boolean
+}) {
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          className="mt-6 px-4 py-4 border border-grape/30 bg-grape/5 rounded-lg"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+        >
+          <motion.p
+            className="text-grape/90 text-xs uppercase tracking-widest mb-2 font-mono"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+          >
+            {t('result.aiChefStory')}
+          </motion.p>
+          <motion.h3
+            className="text-cream font-bold text-sm mb-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5 }}
+          >
+            {story.title}
+          </motion.h3>
+          <motion.p
+            className="text-cream/70 text-xs leading-relaxed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.7 }}
+          >
+            {story.narrative}
+          </motion.p>
+          <motion.p
+            className="text-grape/60 text-xs italic mt-2 text-right"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+          >
+            {story.signature}
+          </motion.p>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+})
+
+const FlavorDecisionCard = memo(function FlavorDecisionCard({
+  decision,
+  index,
+  show,
+}: {
+  decision: FlavorDecision
+  index: number
+  show: boolean
+}) {
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          className="flex items-start gap-3 px-3 py-2 border border-cream/10 bg-cream/3 rounded"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4, delay: index * 0.15 }}
+        >
+          <span className="text-lg flex-shrink-0 mt-0.5">{decision.icon}</span>
+          <div className="min-w-0">
+            <p className="text-cream/90 text-xs font-mono truncate">{decision.title}</p>
+            <p className="text-cream/50 text-[10px] leading-relaxed">{decision.description}</p>
+            <span className="text-cream/25 text-[9px] font-mono">{decision.timing}</span>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  )
+})
+
+/* ------------------------------------------------------------------ */
+/*  Pixel Dish SVG (larger, for result page)                          */
+/* ------------------------------------------------------------------ */
+
+const PixelDishDisplay = memo(function PixelDishDisplay({
+  config,
+}: {
+  config: DishVisualConfig
+}) {
+  const shapeRenderer = (layer: (typeof config.layers)[0], i: number) => {
+    const commonProps = {
+      key: i,
+      fill: layer.color,
+      opacity: layer.opacity ?? 1,
+      filter: 'url(#pixelate)',
     }
-  }, [result.success, setMood, showMessage, t])
 
-  // Generate dish visual config
-  const dishVisual = useMemo(() => {
-    const avg = Math.round((result.score.taste + result.score.creativity + result.score.nutrition) / 3)
-    return generateDishVisual(ingredients, avg)
-  }, [ingredients, result.score])
+    switch (layer.shape) {
+      case 'circle':
+        return (
+          <circle
+            {...commonProps}
+            cx={layer.x + (config.layers.find((l) => l.type === 'base')?.width ?? 90)}
+            cy={layer.y + 90}
+            r={layer.width / 2}
+          />
+        )
+      case 'ellipse':
+        return (
+          <ellipse
+            {...commonProps}
+            cx={layer.x + (config.layers.find((l) => l.type === 'base')?.width ?? 90)}
+            cy={layer.y + 90}
+            rx={layer.width / 2}
+            ry={layer.height / 2}
+          />
+        )
+      case 'rect':
+        return (
+          <rect
+            {...commonProps}
+            x={layer.x + (config.layers.find((l) => l.type === 'base')?.width ?? 90) - layer.width / 2}
+            y={layer.y + 90 - layer.height / 2}
+            width={layer.width}
+            height={layer.height}
+            rx={3}
+          />
+        )
+      case 'triangle':
+        return (
+          <polygon
+            {...commonProps}
+            points={`${layer.x + (config.layers.find((l) => l.type === 'base')?.width ?? 90)},${layer.y + 90 - layer.height / 2} ${layer.x + (config.layers.find((l) => l.type === 'base')?.width ?? 90) - layer.width / 2},${layer.y + 90 + layer.height / 2} ${layer.x + (config.layers.find((l) => l.type === 'base')?.width ?? 90) + layer.width / 2},${layer.y + 90 + layer.height / 2}`}
+          />
+        )
+      case 'ribbon':
+        return (
+          <rect
+            {...commonProps}
+            x={layer.x + (config.layers.find((l) => l.type === 'base')?.width ?? 90) - layer.width / 2}
+            y={layer.y + 90 - layer.height / 2}
+            width={layer.width}
+            height={layer.height}
+            rx={layer.height / 2}
+          />
+        )
+      default:
+        return null
+    }
+  }
 
-  // Generate AI review
-  const aiReview = useMemo(() => {
-    const avg = Math.round((result.score.taste + result.score.creativity + result.score.nutrition) / 3)
-    return generateDishReview(result.dishName, avg, ingredients)
-  }, [result.dishName, result.score, ingredients])
+  return (
+    <svg
+      viewBox="0 0 180 200"
+      className="w-full h-auto max-w-[200px] mx-auto drop-shadow-[0_0_20px_rgba(168,85,247,0.3)]"
+      style={{ imageRendering: 'pixelated' }}
+    >
+      <defs>
+        <filter id="pixelate">
+          <feFlood x="0" y="0" width="3" height="3" />
+          <feComposite width="3" height="3" />
+          <feTile result="a" />
+          <feComposite in="SourceGraphic" in2="a" operator="in" />
+          <feMorphology operator="dilate" radius="0.5" />
+        </filter>
+      </defs>
+      {config.layers.map((layer, i) => shapeRenderer(layer, i))}
+    </svg>
+  )
+})
 
-  const SCORE_BARS: { key: keyof CookingResult['score']; color: string; emoji: string }[] = [
-    { key: 'taste', color: 'bg-tomato', emoji: '👅' },
-    { key: 'creativity', color: 'bg-grape', emoji: '🎨' },
-    { key: 'nutrition', color: 'bg-mint', emoji: '💪' },
-  ]
+/* ------------------------------------------------------------------ */
+/*  Derivation Helpers                                                 */
+/* ------------------------------------------------------------------ */
 
-  const avg = Math.round(
-    (result.score.taste + result.score.creativity + result.score.nutrition) / 3,
+function deriveMethod(ingredients: Ingredient[], result: CookingResult): string {
+  const hasProtein = ingredients.some((i) => i.category === 'protein')
+  const categories = new Set(ingredients.map((i) => i.category))
+  const isFresh = categories.has('vegetable') && !hasProtein
+
+  if (result.score.creativity >= 80) return 'grill'
+  if (result.score.taste >= 80 && hasProtein) return 'stirFry'
+  if (hasProtein && categories.has('seasoning')) return 'deepFry'
+  if (isFresh) return 'steam'
+  if (hasProtein) return 'simmer'
+  return 'bake'
+}
+
+function deriveFlavorProfile(ingredients: Ingredient[]): string {
+  const flavorTotals = { spicy: 0, rich: 0, fresh: 0, sweet: 0, savory: 0 }
+
+  // Use known flavor traits per ingredient category
+  for (const ing of ingredients) {
+    const id = ing.id ?? ''
+    if (id.includes('chili')) flavorTotals.spicy += 2
+    if (id.includes('pork') || id.includes('belly')) flavorTotals.rich += 2
+    if (id.includes('broccoli') || id.includes('herb')) flavorTotals.fresh += 2
+    if (id.includes('carrot') || id.includes('sweet')) flavorTotals.sweet += 2
+    if (id.includes('garlic') || id.includes('mushroom')) flavorTotals.savory += 2
+    if (id.includes('chicken')) { flavorTotals.rich += 1; flavorTotals.savory += 1 }
+    if (id.includes('fish')) { flavorTotals.fresh += 2; flavorTotals.savory += 1 }
+  }
+
+  // Find the dominant flavor
+  const entries = Object.entries(flavorTotals) as [string, number][]
+  entries.sort((a, b) => b[1] - a[1])
+
+  return entries[0]?.[0] ?? 'savory'
+}
+
+/* ------------------------------------------------------------------ */
+/*  Main Component                                                     */
+/* ------------------------------------------------------------------ */
+
+export default function ResultPreview({
+  result,
+  ingredients,
+  method: methodProp,
+  flavorProfile: flavorProfileProp,
+  onFinish,
+  onRetry,
+  onBack,
+  onMemory: _onMemory,
+}: Props) {
+  const { t } = useLanguage()
+  const [stage, setStage] = useState<RevealStage>('dark')
+  const [showParticles, setShowParticles] = useState(false)
+
+  // Derive method and flavor profile from ingredients if not provided
+  const method = useMemo(
+    () => methodProp ?? deriveMethod(ingredients, result),
+    [methodProp, ingredients, result],
+  )
+
+  const flavorProfile = useMemo(
+    () => flavorProfileProp ?? deriveFlavorProfile(ingredients),
+    [flavorProfileProp, ingredients],
+  )
+
+  const finishAction = onFinish ?? onBack ?? (() => {})
+
+  // Generate all data
+  const dishVisual = useMemo(
+    () => generateDishVisual(ingredients, method, flavorProfile, result.score.taste),
+    [ingredients, method, flavorProfile, result.score.taste],
+  )
+
+  const aiStory = useMemo(
+    () => generateAIStory(result, ingredients, method, flavorProfile),
+    [result, ingredients, method, flavorProfile],
+  )
+
+  const flavorDecisions = useMemo(
+    () => generateFlavorDecisions(result, ingredients, method, flavorProfile),
+    [result, ingredients, method, flavorProfile],
+  )
+
+  const smokeParticles = useMemo(() => generateSmokeParticles(30), [])
+  const pixelParticles = useMemo(
+    () =>
+      generatePixelParticles(40, [
+        dishVisual.baseColor,
+        dishVisual.accentColor,
+        dishVisual.garnishColor,
+        '#FBBF24',
+        '#A855F7',
+      ]),
+    [dishVisual],
+  )
+
+  // Progress through stages
+  useEffect(() => {
+    const currentIndex = STAGE_ORDER.indexOf(stage)
+    if (currentIndex < STAGE_ORDER.length - 1) {
+      const delay = STAGE_DELAYS[stage]
+      const timer = setTimeout(() => {
+        const nextStage = STAGE_ORDER[currentIndex + 1]
+        setStage(nextStage)
+        if (nextStage === 'particles') {
+          setShowParticles(true)
+        }
+      }, delay)
+      return () => clearTimeout(timer)
+    }
+  }, [stage])
+
+  const stageIndex = STAGE_ORDER.indexOf(stage)
+  const isAtLeast = useCallback(
+    (s: RevealStage) => STAGE_ORDER.indexOf(s) <= stageIndex,
+    [stageIndex],
   )
 
   return (
-    <section className="relative overflow-hidden py-8 sm:py-12">
-      <Container className="flex flex-col items-center">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-          className="w-full max-w-xl"
-        >
-          {/* ================================================================ */}
-          {/*  1. Pixel Dish Artwork                                            */}
-          {/* ================================================================ */}
-          <motion.div
-            initial={{ opacity: 0, y: -8 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mb-4"
-          >
-            <p className="mb-3 text-center font-pixel text-[8px] tracking-[0.3em] text-cream/50 uppercase">
-              {t('result.dishCreated')}
-            </p>
-            <PixelDishArtwork config={dishVisual} />
-          </motion.div>
-
-          {/* ================================================================ */}
-          {/*  2. Score Panel                                                   */}
-          {/* ================================================================ */}
-          <PixelPanel
-            glow={result.success ? 'tomato' : 'cheese'}
-            className="relative px-6 py-7 text-center"
-          >
-            <span
-              className={`inline-block border-4 border-ink px-3 py-1 font-pixel text-[8px] shadow-pixel-sm ${
-                result.success ? 'bg-tomato text-ink' : 'bg-cheese text-ink'
-              }`}
+    <div className="min-h-screen bg-ink flex flex-col items-center justify-center px-4 py-8">
+      <PixelPanel glow="grape" className="w-full max-w-lg relative overflow-visible">
+        {/* Synthesizing text — stage dark */}
+        <AnimatePresence>
+          {stage === 'dark' && (
+            <motion.div
+              className="absolute inset-0 flex flex-col items-center justify-center bg-ink/90 z-20"
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6 }}
             >
-              {result.success ? t('result.cookingComplete') : t('result.flavorDiscovery')}
-            </span>
-
-            <h1 className="mt-4 font-pixel text-lg leading-relaxed text-cream sm:text-2xl">
-              {result.dishName}
-            </h1>
-
-            <div className="mt-3 flex justify-center">
-              <PixelChefAnimation state={result.success ? 'success' : 'fail'} />
-            </div>
-
-            {/* Animated score bars */}
-            <div className="mt-5 space-y-3">
-              {SCORE_BARS.map((bar, i) => (
-                <div key={bar.key} className="flex items-center gap-3">
-                  <span className="w-14 text-left font-pixel text-[7px] text-cream/70">
-                    {t(`result.${bar.key}`)}
-                  </span>
-                  <span className="w-6 font-terminal text-base text-cream/50">{bar.emoji}</span>
-                  <div className="flex-1 h-4 overflow-hidden border-2 border-ink bg-ink">
-                    <motion.div
-                      className={`h-full ${bar.color}`}
-                      initial={{ width: 0 }}
-                      animate={{ width: `${result.score[bar.key]}%` }}
-                      transition={{ delay: 0.3 + i * 0.2, duration: 0.8, ease: 'easeOut' }}
-                    />
-                  </div>
-                  <span className="w-10 text-right font-pixel text-sm text-cream">
-                    <AnimatedNumber value={result.score[bar.key]} />
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            {/* Overall score */}
-            <div className="mt-5">
-              <motion.span
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.8, type: 'spring', stiffness: 260, damping: 16 }}
-                className="inline-block border-4 border-ink bg-cheese px-4 py-1 font-pixel text-base text-ink shadow-pixel"
+              <motion.p
+                className="text-grape font-mono text-sm tracking-[0.3em] uppercase"
+                animate={{ opacity: [0.4, 1, 0.4] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
               >
-                {t('result.pts', { n: avg })}
-              </motion.span>
-            </div>
+                {t('result.synthesizing')}
+              </motion.p>
+              <motion.div className="mt-4 flex gap-1">
+                {[0, 1, 2].map((i) => (
+                  <motion.div
+                    key={i}
+                    className="w-2 h-2 bg-grape/60"
+                    animate={{ opacity: [0.3, 1, 0.3] }}
+                    transition={{ duration: 1, delay: i * 0.2, repeat: Infinity }}
+                  />
+                ))}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-            {/* AI message */}
-            <motion.p
-              initial={{ opacity: 0, y: 8 }}
+        {/* Dish Area with relative positioning for effects */}
+        <div className="relative flex flex-col items-center py-6 min-h-[280px]">
+          {/* Smoke effect */}
+          {isAtLeast('smoke') && <SmokeEffect particles={smokeParticles} />}
+
+          {/* Pixel burst */}
+          <PixelBurst particles={pixelParticles} show={showParticles} />
+
+          {/* Chef celebration */}
+          <ChefCelebration show={isAtLeast('celebrate')} />
+
+          {/* Dish artwork */}
+          <AnimatePresence>
+            {isAtLeast('reveal') && (
+              <motion.div
+                className="relative z-10"
+                initial={{ opacity: 0, scale: 0, y: 30 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{
+                  duration: 0.8,
+                  type: 'spring',
+                  stiffness: 120,
+                  damping: 12,
+                }}
+              >
+                {/* Steam/sizzle/glow effect indicator */}
+                {dishVisual.effect === 'steam' && (
+                  <motion.div
+                    className="absolute inset-0 -top-8 flex justify-center gap-4 z-0 pointer-events-none"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                  >
+                    {[0, 1, 2].map((i) => (
+                      <motion.div
+                        key={i}
+                        className="w-3 h-8 bg-cream/15 rounded-full"
+                        animate={{
+                          y: [-10, -30],
+                          opacity: [0.3, 0],
+                          scaleX: [1, 1.8],
+                        }}
+                        transition={{
+                          duration: 2,
+                          delay: i * 0.5,
+                          repeat: Infinity,
+                          ease: 'easeOut',
+                        }}
+                      />
+                    ))}
+                  </motion.div>
+                )}
+
+                {dishVisual.effect === 'sizzle' && (
+                  <motion.div
+                    className="absolute inset-0 z-0 pointer-events-none"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                  >
+                    {Array.from({ length: 6 }, (_, i) => (
+                      <motion.div
+                        key={i}
+                        className="absolute w-1.5 h-1.5 rounded-full"
+                        style={{
+                          backgroundColor: dishVisual.accentColor,
+                          left: `${40 + Math.random() * 20}%`,
+                          top: `${60 + Math.random() * 20}%`,
+                        }}
+                        animate={{
+                          y: [-2, -20, -40],
+                          opacity: [0.8, 0.4, 0],
+                          x: [(Math.random() - 0.5) * 10, (Math.random() - 0.5) * 20, (Math.random() - 0.5) * 30],
+                        }}
+                        transition={{
+                          duration: 1 + Math.random(),
+                          delay: i * 0.3,
+                          repeat: Infinity,
+                          ease: 'easeOut',
+                        }}
+                      />
+                    ))}
+                  </motion.div>
+                )}
+
+                {dishVisual.effect === 'glow' && (
+                  <motion.div
+                    className="absolute inset-0 rounded-full z-0 pointer-events-none"
+                    style={{
+                      background: `radial-gradient(circle, ${dishVisual.accentColor}20 0%, transparent 70%)`,
+                    }}
+                    animate={{
+                      scale: [1, 1.3, 1],
+                      opacity: [0.3, 0.6, 0.3],
+                    }}
+                    transition={{
+                      duration: 2,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                    }}
+                  />
+                )}
+
+                {dishVisual.effect === 'frost' && (
+                  <motion.div
+                    className="absolute inset-0 z-0 pointer-events-none"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.6 }}
+                  >
+                    {Array.from({ length: 6 }, (_, i) => (
+                      <motion.div
+                        key={i}
+                        className="absolute w-1 h-1 bg-cream/40 rounded-full"
+                        style={{
+                          left: `${20 + Math.random() * 60}%`,
+                          top: `${20 + Math.random() * 60}%`,
+                        }}
+                        animate={{
+                          opacity: [0, 0.6, 0],
+                          scale: [0.5, 1, 0.5],
+                        }}
+                        transition={{
+                          duration: 2,
+                          delay: i * 0.4,
+                          repeat: Infinity,
+                        }}
+                      />
+                    ))}
+                  </motion.div>
+                )}
+
+                <PixelDishDisplay config={dishVisual} />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Dish Name */}
+        <AnimatePresence>
+          {isAtLeast('reveal') && (
+            <motion.h2
+              className="text-center text-cream font-bold text-xl mt-2 font-mono"
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1.2 }}
-              className="mx-auto mt-5 max-w-sm border-t-4 border-ink-line pt-4 font-sans text-sm leading-relaxed text-cream/80"
+              transition={{ duration: 0.5, delay: 0.3 }}
             >
-              <TypingText text={result.message} speed={30} />
-            </motion.p>
+              {result.dishName}
+            </motion.h2>
+          )}
+        </AnimatePresence>
 
-            {/* Memory update note */}
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.5 }}
-              className="mt-3 font-terminal text-base text-grape"
+        {/* Score section */}
+        <div className="mt-4 space-y-2 px-4">
+          <AnimatePresence>
+            {isAtLeast('score') && (
+              <motion.p
+                className="text-cream/50 text-[10px] uppercase tracking-widest font-mono mb-2"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4 }}
+              >
+                {t('result.cookingAnalysis')}
+              </motion.p>
+            )}
+          </AnimatePresence>
+
+          <ScoreBar
+            label={t('result.taste')}
+            score={result.score.taste}
+            color="#A855F7"
+            delay={0}
+            show={isAtLeast('score')}
+          />
+          <ScoreBar
+            label={t('result.creativity')}
+            score={result.score.creativity}
+            color="#FBBF24"
+            delay={0.2}
+            show={isAtLeast('score')}
+          />
+          <ScoreBar
+            label={t('result.nutrition')}
+            score={result.score.nutrition}
+            color="#34D399"
+            delay={0.4}
+            show={isAtLeast('score')}
+          />
+
+          <AnimatePresence>
+            {isAtLeast('score') && (
+              <motion.div
+                className="text-center mt-3"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.8 }}
+              >
+                <span className="text-cream/70 text-xs font-mono">{t('result.totalScore')} </span>
+                <motion.span
+                  className="text-grape font-bold text-2xl font-mono"
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 200,
+                    damping: 10,
+                    delay: 1.2,
+                  }}
+                >
+                  {Math.round(
+                    (result.score.taste + result.score.creativity + result.score.nutrition) / 3,
+                  )}
+                </motion.span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* AI Chef Story */}
+        <AIStorySection story={aiStory} show={isAtLeast('story')} />
+
+        {/* Flavor Decision Panel */}
+        <AnimatePresence>
+          {isAtLeast('decisions') && (
+            <motion.div
+              className="mt-5 px-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
             >
-              {t('result.memoryNote')}
-            </motion.p>
-          </PixelPanel>
+              <p className="text-cream/50 text-[10px] uppercase tracking-widest font-mono mb-3">
+                {t('result.aiDecisionLog')}
+              </p>
+              <div className="space-y-2">
+                {flavorDecisions.map((decision, i) => (
+                  <FlavorDecisionCard
+                    key={i}
+                    decision={decision}
+                    index={i}
+                    show={isAtLeast('decisions')}
+                  />
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-          {/* ================================================================ */}
-          {/*  3. AI Chef Review                                               */}
-          {/* ================================================================ */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.6 }}
-            className="mx-auto mt-4 max-w-lg rounded-xl border-2 border-cream/20 bg-surface/60 px-5 py-4 backdrop-blur"
-          >
-            <span className="font-terminal text-[8px] tracking-[0.25em] text-cream/50">
-              {t('result.aiReview')}
-            </span>
-            <p className="mt-2 font-sans text-sm leading-relaxed text-cream/80 italic">
-              &ldquo;
-              <TypingText text={aiReview} speed={35} />
-              &rdquo;
-            </p>
-          </motion.div>
-        </motion.div>
-
-        {/* ================================================================ */}
-        {/*  4. Action Buttons                                                */}
-        {/* ================================================================ */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
-          className="mt-8 flex flex-wrap items-center justify-center gap-3"
-        >
-          <PixelButton variant="ghost" onClick={onBack}>
-            {t('result.backToKitchen')}
-          </PixelButton>
-          <PixelButton variant="tomato" onClick={onRetry}>
-            {t('result.tryAgain')}
-          </PixelButton>
-          <PixelButton variant="grape" onClick={onMemory}>
-            {t('result.saveToMemory')}
-          </PixelButton>
-        </motion.div>
-      </Container>
-    </section>
+        {/* Action buttons */}
+        <AnimatePresence>
+          {isAtLeast('actions') && (
+            <motion.div
+              className="mt-6 px-4 pb-2 flex gap-3"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <PixelButton
+                variant="outline"
+                onClick={onRetry}
+                className="flex-1 text-xs"
+              >
+                {t('result.tryAgain')}
+              </PixelButton>
+              <PixelButton
+                variant="primary"
+                onClick={finishAction}
+                className="flex-1 text-xs"
+              >
+                {t('common.finish')}
+              </PixelButton>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </PixelPanel>
+    </div>
   )
 }
