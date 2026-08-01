@@ -112,8 +112,8 @@ export default function CookingPot({ items, ready }: CookingPotProps) {
             <rect x="8" y="19" width="6" height="17" fill="#3d3570" />
             <rect x="8" y="32" width="48" height="4" fill="#15122b" />
             {/* Shine */}
-            <rect x="30" y="24" width="4" height="4" fill="#ffcb3b" />
-            <rect x="34" y="28" width="2" height="2" fill="#ffcb3b" />
+            <rect x="30" y="24" width="4" height="4" fill="#5a4fa0" opacity="0.6" />
+            <rect x="34" y="28" width="2" height="2" fill="#5a4fa0" opacity="0.4" />
             {/* Feet */}
             <rect x="14" y="36" width="6" height="4" fill="#15122b" />
             <rect x="44" y="36" width="6" height="4" fill="#15122b" />
