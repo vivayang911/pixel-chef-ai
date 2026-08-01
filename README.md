@@ -134,8 +134,6 @@ Cinematic score breakdown — AI explains *why* it created this dish for you.
 
 ![Result](docs/screenshots/result.png)
 
-> Replace the five images in `docs/screenshots/` with real captures (recommended 1280×720, 16:9).
-
 ---
 
 ## 🧠 AI Architecture
