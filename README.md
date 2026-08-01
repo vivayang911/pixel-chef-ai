@@ -1,105 +1,144 @@
 # 🍳 Pixel Chef AI
 
-**A Memory Kitchen That Learns Your Taste.**
+## A Memory Kitchen That Learns Your Taste
 
-> Built for the [DEV Frontend Challenge: Comfort Food Edition](https://dev.to/challenges) — fully client-side, zero backend, pure vibes.
+> An AI cooking companion that transforms your everyday ingredients into personalized comfort food — one memory at a time.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black?style=flat-square)](https://your-demo-url.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black?style=flat-square)](https://pixel-chef-ai.vercel.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+
+![Pixel Chef AI Preview](docs/screenshots/hero.png)
 
 ---
 
-## Overview
+## What is Pixel Chef AI?
 
-Pixel Chef AI is an interactive AI cooking companion that lives inside a pixel-art kitchen.  
-You pick ingredients from the fridge, toss them into the pot, and watch a real-time cooking simulation unfold — complete with random fire events, AI chatter, and a personality engine that builds your unique **Taste DNA**.  
+Pixel Chef AI is a personal AI cooking companion that **learns how you eat**.
 
-Every cook generates a diary entry, a timeline memory, and future recipe suggestions. It's a small love letter to the food that makes us feel at home.
+Instead of giving generic recipes, Pixel analyzes your ingredients, taste preferences, nutrition goals, and cooking decisions to create meals that feel **personal**.
+
+From opening your virtual fridge to saving your cooking memories, every interaction helps your AI chef understand you better.
+
+**It is not just a recipe generator. It is a memory-driven kitchen companion.**
+
+---
+
+## Why AI?
+
+Traditional recipe apps answer:
+
+> *"What can I cook?"*
+
+**Pixel Chef AI asks:**
+
+> *"What would YOU enjoy cooking today?"*
+
+The AI companion considers:
+
+- 🧊 **Ingredients available** — what's in your virtual fridge right now
+- 🧬 **Personal taste memory** — your flavor profile built across every meal
+- 🎯 **Flavor preferences** — sweet, spicy, umami, and everything in between
+- 💪 **Nutrition goals** — health-conscious, protein-rich, comfort-heavy
+- 🔥 **Cooking behavior** — how you cook, what you choose, when you experiment
+
+Every meal becomes a learning experience. Your AI chef grows with you.
 
 ---
 
 ## ✨ Features
 
-- 🤖 **AI Cooking Companion** — Your pixel sous-chef guides you through every step
-- 🧊 **Interactive Pixel Kitchen** — Open the fridge, pick ingredients, toss into the pot
-- 🔥 **Real-time Cooking Simulation** — Countdown timer, random fire / seasoning / flavor events, AI chat
-- 🧬 **Taste Personality System** — AI analyzes your cooking style and builds your Taste DNA
-- 📝 **AI Diary & Memory Timeline** — Typewriter journal entries, cooking memories, future suggestions
-- 🎮 **Pixel Game Feel** — 8-bit interface with Framer Motion animations, blinking chef, steam, sparkles
-- 📱 **Fully Responsive** — Polished from 375px to ultrawide, mobile-first
+- 🤖 **AI Cooking Companion** — A floating Pixel AI sous-chef that chats, reacts, and guides you in real time
+- 🧊 **Interactive Pixel Kitchen** — Open the virtual fridge, browse ingredients, toss them into the pot
+- 🔥 **Real-time Cooking Simulation** — Countdown timer with random fire events, seasoning moments, and live AI chatter
+- 🧬 **Taste DNA System** — AI analyzes your cooking choices and builds a unique flavor personality profile
+- 📝 **AI Diary & Memory Timeline** — Auto-generated journal entries, cooking reflections, and future recipe suggestions
+- 📊 **Flavor DNA Radar** — 15-dimension flavor analysis visualized as an interactive SVG radar chart
+- 🏠 **Smart Kitchen Vision** — Designed for future smart refrigerators, ingredient recognition, and personalized meal planning
+- 🎮 **Pixel Game Feel** — 8-bit interface, Framer Motion animations, blinking chef, steam, and sparkles
+- 🌐 **i18n Ready** — English, 中文, and 日本語 built in
+- 📱 **Fully Responsive** — Polished from 375px mobile to ultrawide desktop
+
+---
+
+## 🚀 Demo Experience
+
+```
+        Home (Memory Kitchen)
+              │  "Welcome back, Chef. I remember your taste."
+              ▼
+        ┌─────────────────────┐
+        │  Open Smart Fridge   │  ← Browse your virtual ingredient shelf
+        └─────────┬───────────┘
+                  ▼
+        ┌─────────────────────┐
+        │  AI Ingredient       │  ← Flavor DNA preview updates in real time
+        │  Recognition         │
+        └─────────┬───────────┘
+                  ▼
+        ┌─────────────────────┐
+        │  Choose Cooking      │  ← Stir-fry, steam, boil, deep-fry, roast, simmer
+        │  Method              │
+        └─────────┬───────────┘
+                  ▼
+        ┌─────────────────────┐
+        │  Flavor DNA Analysis │  ← AI predicts flavor balance across 15 dimensions
+        └─────────┬───────────┘
+                  ▼
+        ┌─────────────────────┐
+        │  Personal Recipe     │  ← AI creates a recipe just for you
+        │  Creation            │
+        └─────────┬───────────┘
+                  ▼
+        ┌─────────────────────┐
+        │  AI Cooking          │  ← Real-time simulation with fire events + AI chat
+        │  Assistant           │
+        └─────────┬───────────┘
+                  ▼
+        ┌─────────────────────┐
+        │  Dish Reveal         │  ← Cinematic score reveal + AI chef story
+        └─────────┬───────────┘
+                  ▼
+        ┌─────────────────────┐
+        │  Dish Memory Saved   │  ← Auto-saved to your Taste Memory timeline
+        └─────────────────────┘
+```
+
+**Try the 6-step AUTO DEMO** — watch Pixel do everything from ingredient selection to dish reveal, hands-free.
 
 ---
 
 ## 📸 Screenshots
 
-| Home (Memory Kitchen) | AI Cooking Studio | Cooking Simulation | Taste Memory |
-|:---------------------:|:-----------------:|:------------------:|:------------:|
-| ![Home](docs/screenshots/home.png) | ![Studio](docs/screenshots/studio.png) | ![Cooking](docs/screenshots/cooking.png) | ![Memory](docs/screenshots/memory.png) |
+### 🧊 Memory Kitchen
+The AI companion welcomes you back and remembers your taste profile.
 
-> Replace the four images in `docs/screenshots/` with real captures (recommended size ≈ 1280×720 or 16:9).
+![Home](docs/screenshots/home.png)
 
----
+### 🤖 AI Cooking Studio
+Pick from the virtual fridge — Flavor DNA updates live as you build your dish.
 
-## 🚀 Demo Flow
+![Studio](docs/screenshots/studio.png)
 
-```
-Home (Memory Kitchen)
-  ↓ Start Cooking
-AI Cooking Studio
-  ↓ Pick ingredients → toss into pot
-  ↓ Start Cooking
-Cooking Story Simulation
-  ↓ Timer + fire events + AI chat
-  ↓ Finish Cooking
-Result Preview (scores)
-  ↓ Save To My Taste Memory
-Taste Memory Diary
-  ↓ AI Reflection → Taste DNA → Timeline → Future Suggestion
-```
+### 🔥 AI Cooking Simulation
+Real-time countdown with random cooking events and live AI sous-chef guidance.
 
----
+![Cooking](docs/screenshots/cooking.png)
 
-## 🏗️ Tech Stack
+### 🧬 Taste Memory
+Your personal flavor timeline — AI reflections, diary entries, and future suggestions.
 
-| Layer       | Technology                          |
-|-------------|-------------------------------------|
-| Framework   | React 18 + TypeScript               |
-| Build       | Vite 5                              |
-| Animation   | Framer Motion 11                    |
-| Styling     | Tailwind CSS v3 + Custom Theme      |
-| Fonts       | Press Start 2P · VT323 · Inter      |
-| State       | React useState / useMemo / useRef   |
-| Persistence | localStorage (tutorial flag only)   |
+![Memory](docs/screenshots/memory.png)
+
+### 🍽️ Dish Reveal
+Cinematic score breakdown — AI explains *why* it created this dish for you.
+
+![Result](docs/screenshots/result.png)
+
+> Replace the five images in `docs/screenshots/` with real captures (recommended 1280×720, 16:9).
 
 ---
 
-## 📐 Architecture
-
-```
-src/
-├── components/
-│   ├── ai/               # AI Chef Companion, FlavorDNA, AIAnalysisPanel, TypingText
-│   ├── common/           # ErrorBoundary, PageTransition, PixelLoader
-│   ├── cooking/          # AIAdvisor, IngredientShelf, TasteMemoryCard, Story
-│   │   └── story/        # ResultPreview, CookingEvent, PixelChefAnimation
-│   ├── kitchen/          # MemoryKitchen (homepage)
-│   ├── memory/           # AIReflection, TasteDNA, MemoryTimeline...
-│   └── ui/               # PixelButton, PixelChef, PixelCard, Header
-├── engine/               # Pure logic (no side effects)
-│   ├── aiChefEngine.ts   # AI analysis, flavor prediction, companion phrases
-│   ├── aiCompanionContext.tsx  # Global AI mood & speech bubble state
-│   ├── memoryEngine.ts
-│   ├── cookingEngine.ts
-│   └── personalityEngine.ts
-├── i18n/                 # EN / 中文 / 日本語 translations
-├── pages/
-├── types/
-└── App.tsx               # SPA router + AICompanionProvider
-```
-
----
-
-## 🧠 AI Companion Architecture
+## 🧠 AI Architecture
 
 ```
                     ┌─────────────────────────┐
@@ -120,7 +159,7 @@ src/
               ┌─────────────────────────────────┐
               │     Ingredient Analysis Engine   │
               │  • analyzeIngredients()          │
-              │  • 15‑element flavor profiles    │
+              │  • 15-element flavor profiles    │
               │  • Pairing compatibility matrix  │
               └─────────────┬───────────────────┘
                                 │
@@ -134,7 +173,7 @@ src/
                                 │
                                 ▼
               ┌─────────────────────────────────┐
-              │        Nutrition Advice          │
+              │        Nutrition + Advice        │
               │  • Calorie estimates             │
               │  • Health score                  │
               │  • Dietary balance tips          │
@@ -143,8 +182,8 @@ src/
                                 ▼
               ┌─────────────────────────────────┐
               │       Cooking Assistance         │
-              │  • Real‑time event guidance      │
-              │  • Auto‑cook optimization        │
+              │  • Real-time event guidance      │
+              │  • Auto-cook optimization        │
               │  • AI chat with TypingText       │
               └─────────────┬───────────────────┘
                                 │
@@ -158,38 +197,49 @@ src/
               └─────────────────────────────────┘
 ```
 
-### AI Mood State Machine
+> See [`docs/architecture.md`](docs/architecture.md) for the full AI mood state machine, companion message system, and detailed component architecture.
+
+---
+
+## 🏗️ Tech Stack
+
+| Layer       | Technology                          |
+|-------------|-------------------------------------|
+| Framework   | React 18 + TypeScript               |
+| Build       | Vite 5                              |
+| Animation   | Framer Motion 11                    |
+| Styling     | Tailwind CSS v3 + Custom Theme      |
+| Fonts       | Press Start 2P · VT323 · Inter      |
+| State       | React useState / useMemo / useRef   |
+| Persistence | localStorage (tutorial flag only)   |
+
+---
+
+## 📐 Project Structure
 
 ```
-   home page ──────▶ happy
-                       │
-   ingredient ─────▶ curious
-   selection           │
-                       │
-   AI analysis ─────▶ thinking
-   panel               │
-                       │
-   cooking ─────────▶ focused
-   story               │
-                       │
-   ┌───────────────────┤
-   │                   │
-   ▼                   ▼
-success             failure
- (celebrate)        (comfort)
+src/
+├── components/
+│   ├── ai/               # AI Chef Companion, FlavorDNA, AIAnalysisPanel, TypingText
+│   ├── cooking/          # AIAdvisor, IngredientShelf, TasteMemoryCard, Story
+│   │   └── story/        # ResultPreview, CookingEvent, PixelChefAnimation
+│   ├── demo/             # DemoMode auto-walkthrough controller
+│   ├── kitchen/          # MemoryKitchen (homepage)
+│   ├── memory/           # AIReflection, TasteDNA, MemoryTimeline...
+│   └── ui/               # PixelButton, PixelChef, PixelCard, Header
+├── engine/               # Pure logic (no side effects)
+│   ├── aiChefEngine.ts   # AI analysis, flavor prediction, companion phrases
+│   ├── aiCompanionContext.tsx  # Global AI mood & speech bubble state
+│   ├── memoryEngine.ts   # Taste memory, feedback generation
+│   ├── cookingEngine.ts  # Cooking simulation, event scheduling, scoring
+│   ├── dishImageEngine.ts # Pixel dish visual generation, AI storytelling
+│   └── personalityEngine.ts
+├── i18n/                 # EN / 中文 / 日本語 translations
+├── pages/                # CreateDish, CookingStory, TasteMemory
+│   └── guide/            # HomeGuide onboarding
+├── types/                # TypeScript interfaces
+└── App.tsx               # SPA router + AICompanionProvider
 ```
-
-### Companion Messages by Phase
-
-| Phase | Mood | Speech Bubble |
-|-------|------|---------------|
-| Home (returning) | `happy` | "Welcome back, Chef. I saved your flavor memory." |
-| Home (fridge) | `happy` | "Let's discover today's flavor." |
-| Pick ingredient | `curious` | "Interesting choice! Let's see what we can create." |
-| AI Analysis | `thinking` | "Give me a second… I'm balancing your flavors." |
-| Cooking | `focused` | "The heat is rising. I would lower the flame now." |
-| Success | `celebrate` | "Beautiful! This feels like your style." |
-| Failure | `comfort` | "Not perfect… but every chef learns." |
 
 ---
 
@@ -202,6 +252,8 @@ npm run lint         # TypeScript check
 npm run build
 npm run preview
 ```
+
+---
 
 ## 🚢 Deployment
 
@@ -220,14 +272,28 @@ npm run build
 # Upload the dist/ folder
 ```
 
-## 🔮 Future Ideas
+---
 
-- 🎵 Web Audio sizzle & chiptune effects
-- 🗃️ IndexedDB recipe history
-- 🤖 Real AI (OpenAI / Gemini) suggestions
-- 🏆 Cooking achievements & unlockable cosmetics
-- 🌐 Social sharing of pixel recipe cards
-- 📲 PWA support
+## 🔮 Future Vision
+
+- 🤖 **Multimodal AI Chef** — Vision models recognize ingredients from real fridge cameras
+- 🏠 **Smart Refrigerator Integration** — Connect with smart appliances to track available food
+- 🛒 **Intelligent Grocery Planning** — Automatically generate shopping lists based on your nutrition goals
+- 💪 **Health Companion** — Adapt meals for fitness targets, weight management, and allergy needs
+- 🌍 **Cultural Taste Adaptation** — Learn and apply regional cooking preferences
+- 📲 **PWA + Social Sharing** — Share pixel recipe cards and cooking achievements
+
+---
+
+## Built With
+
+Created for the **DEV Frontend Challenge: Comfort Food Edition**.
+
+|  |  |
+|---|---|
+| React | TypeScript |
+| Vite | Tailwind CSS |
+| Framer Motion | SVG |
 
 ---
 
