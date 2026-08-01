@@ -10,7 +10,6 @@ import {
   generatePixelParticles,
 } from '@/engine/dishImageEngine'
 import type {
-  DishVisualConfig,
   AIStory,
   FlavorDecision,
   SmokeParticle,
@@ -318,106 +317,7 @@ const FlavorDecisionCard = memo(function FlavorDecisionCard({
 })
 
 /* ------------------------------------------------------------------ */
-/*  Pixel Dish SVG (larger, for result page)                          */
-/* ------------------------------------------------------------------ */
-
-/** ViewBox center constants — all layer coords offset to center in the SVG */
-const VB_CX = 90
-const VB_CY = 100
-
-const PixelDishDisplay = memo(function PixelDishDisplay({
-  config,
-}: {
-  config: DishVisualConfig
-}) {
-  const shapeRenderer = (layer: (typeof config.layers)[0], i: number) => {
-    const commonProps = {
-      key: i,
-      fill: layer.color,
-      opacity: layer.opacity ?? 1,
-      filter: 'url(#pixelate)',
-    }
-
-    switch (layer.shape) {
-      case 'circle':
-        return (
-          <circle
-            {...commonProps}
-            cx={layer.x + VB_CX}
-            cy={layer.y + VB_CY}
-            r={layer.width / 2}
-          />
-        )
-      case 'ellipse':
-        return (
-          <ellipse
-            {...commonProps}
-            cx={layer.x + VB_CX}
-            cy={layer.y + VB_CY}
-            rx={layer.width / 2}
-            ry={layer.height / 2}
-          />
-        )
-      case 'rect':
-        return (
-          <rect
-            {...commonProps}
-            x={layer.x + VB_CX - layer.width / 2}
-            y={layer.y + VB_CY - layer.height / 2}
-            width={layer.width}
-            height={layer.height}
-            rx={3}
-          />
-        )
-      case 'triangle':
-        return (
-          <polygon
-            {...commonProps}
-            points={`${layer.x + VB_CX},${layer.y + VB_CY - layer.height / 2} ${layer.x + VB_CX - layer.width / 2},${layer.y + VB_CY + layer.height / 2} ${layer.x + VB_CX + layer.width / 2},${layer.y + VB_CY + layer.height / 2}`}
-          />
-        )
-      case 'ribbon':
-        return (
-          <rect
-            {...commonProps}
-            x={layer.x + VB_CX - layer.width / 2}
-            y={layer.y + VB_CY - layer.height / 2}
-            width={layer.width}
-            height={layer.height}
-            rx={layer.height / 2}
-          />
-        )
-      default:
-        return null
-    }
-  }
-
-  return (
-    <svg
-      viewBox="0 0 180 200"
-      className="w-full h-auto max-w-[300px] sm:max-w-[340px] md:max-w-[380px] mx-auto"
-      style={{
-        imageRendering: 'pixelated',
-        filter: 'drop-shadow(0 0 24px rgba(168,85,247,0.35)) drop-shadow(0 0 8px rgba(251,191,36,0.2))',
-        minHeight: 'clamp(200px, 40vh, 380px)',
-      }}
-    >
-      <defs>
-        <filter id="pixelate">
-          <feFlood x="0" y="0" width="4" height="4" />
-          <feComposite width="4" height="4" />
-          <feTile result="a" />
-          <feComposite in="SourceGraphic" in2="a" operator="in" />
-          <feMorphology operator="dilate" radius="0.8" />
-        </filter>
-      </defs>
-      {config.layers.map((layer, i) => shapeRenderer(layer, i))}
-    </svg>
-  )
-})
-
-/* ------------------------------------------------------------------ */
-/*  Fallback Pixel Dish — guaranteed visual for every completed dish  */
+/*  Pixel Dish — Emoji-based guaranteed visual                        */
 /* ------------------------------------------------------------------ */
 
 /** Maps ingredient categories to emoji representations */
@@ -470,11 +370,11 @@ function getDishEmojis(ingredients: readonly Ingredient[]): string[] {
 const FallbackPixelDish = memo(function FallbackPixelDish({
   ingredients,
   method,
-  containerLabel,
+  dishName,
 }: {
   ingredients: readonly Ingredient[]
   method: string
-  containerLabel: string
+  dishName: string
 }) {
   const emojis = getDishEmojis(ingredients)
   const bowl = METHOD_BOWL[method] ?? METHOD_BOWL.default
@@ -525,13 +425,13 @@ const FallbackPixelDish = memo(function FallbackPixelDish({
           ))}
         </div>
 
-        {/* Container label below */}
+        {/* Dish name below */}
         <div
           className="mt-1 px-3 py-0.5 rounded bg-cream/10 border border-cream/15"
           style={{ fontSize: 'clamp(10px, 1.5vw, 13px)' }}
         >
           <span className="text-cream/60 font-mono tracking-wider uppercase">
-            {containerLabel}
+            {dishName}
           </span>
         </div>
       </div>
@@ -880,13 +780,11 @@ export default function ResultPreview({
                   </motion.div>
                 )}
 
-                <PixelDishDisplay config={dishVisual} />
-
-                {/* Fallback emoji dish — guaranteed visual layer */}
+                {/* Emoji-based pixel dish — primary visual that always renders */}
                 <FallbackPixelDish
                   ingredients={ingredients}
                   method={method}
-                  containerLabel={dishVisual.containerLabel}
+                  dishName={result.dishName}
                 />
               </motion.div>
             )}
