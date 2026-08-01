@@ -239,6 +239,7 @@ const AIStorySection = memo(function AIStorySection({
   story: AIStory
   show: boolean
 }) {
+  const { t } = useLanguage()
   return (
     <AnimatePresence>
       {show && (

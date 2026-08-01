@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import type { MouseEvent } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import Container from '@/components/ui/Container'
@@ -8,6 +8,8 @@ import CookingPot from '@/components/cooking/CookingPot'
 import AIAdvisor from '@/components/cooking/AIAdvisor'
 import TasteMemoryCard from '@/components/cooking/TasteMemoryCard'
 import AIAnalysisPanel from '@/components/ai/AIAnalysisPanel'
+import CookingMethodSelector from '@/components/cooking/CookingMethodSelector'
+import type { CookingMethod } from '@/components/cooking/CookingMethodSelector'
 import FlavorDNA from '@/components/ai/FlavorDNA'
 import { generateFeedback } from '@/engine/memoryEngine'
 import { predictFlavor, recommendIngredient } from '@/engine/aiChefEngine'
@@ -26,7 +28,7 @@ interface FlyingItem {
 
 interface CreateDishProps {
   onBack: () => void
-  onStartCooking: (dish: Ingredient[]) => void
+  onStartCooking: (dish: Ingredient[], method: string) => void
   /** When provided, auto-selects these ingredients on mount (demo mode) */
   autoSelectIngredients?: Ingredient[]
 }
@@ -47,6 +49,8 @@ export default function CreateDish({
   const { t, lang } = useLanguage()
   const { setMood, showMessage } = useAICompanion()
   const [selected, setSelected] = useState<Ingredient[]>([])
+  const [showMethodSelector, setShowMethodSelector] = useState(false)
+  const [pendingIngredients, setPendingIngredients] = useState<Ingredient[]>([])
   const [flying, setFlying] = useState<FlyingItem[]>([])
   const [demoAutoStarted, setDemoAutoStarted] = useState(false)
   const potRef = useRef<HTMLDivElement>(null)
@@ -86,7 +90,7 @@ export default function CreateDish({
         setSelected((prev) => {
           if (prev.length >= 3 && prev.some((s) => s.category === 'protein')) {
             // Delay the actual call to allow state to settle
-            setTimeout(() => onStartCooking(prev), 600)
+            setTimeout(() => onStartCooking(prev, 'stir-fry'), 600)
           }
           return prev
         })
@@ -116,8 +120,21 @@ export default function CreateDish({
 
   function handleKeepRecipe() {
     setShowAIPanel(false)
-    onStartCooking(selected)
+    setPendingIngredients(selected)
+    setShowMethodSelector(true)
   }
+
+  const handleMethodSelected = useCallback((method: CookingMethod) => {
+    setShowMethodSelector(false)
+    setTimeout(() => {
+      onStartCooking(pendingIngredients, method)
+    }, 320)
+  }, [pendingIngredients, onStartCooking])
+
+  const handleMethodBack = useCallback(() => {
+    setShowMethodSelector(false)
+    setPendingIngredients([])
+  }, [])
 
   function handleAiAddSuggestion() {
     const rec = recommendIngredient(selected, INGREDIENTS)
@@ -238,7 +255,7 @@ export default function CreateDish({
               <PixelButton
                 variant="tomato"
                 disabled={!ready}
-                onClick={() => onStartCooking(selected)}
+                onClick={() => { setPendingIngredients(selected); setShowMethodSelector(true) }}
                 className="px-8 py-4 text-xs"
               >
                 {t('studio.startCooking')}
@@ -283,6 +300,13 @@ export default function CreateDish({
           />
         )}
       </AnimatePresence>
+
+      {/* Cooking Method Selector overlay */}
+      <CookingMethodSelector
+        visible={showMethodSelector}
+        onSubmit={handleMethodSelected}
+        onBack={handleMethodBack}
+      />
     </section>
   )
 }

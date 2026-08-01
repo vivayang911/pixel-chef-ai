@@ -17,6 +17,7 @@ import {
 import type { CookingResult, CookingEventDef, CookingEventType } from '@/engine/cookingEngine'
 import type { ChefAnimState } from '@/components/cooking/story/PixelChefAnimation'
 import type { Ingredient } from '@/types/food'
+import { COOKING_METHODS } from '@/components/cooking/CookingMethodSelector'
 import { useLanguage } from '@/i18n/LanguageContext'
 import { generateCookingAdvice, getRandomPhrase } from '@/engine/aiChefEngine'
 import TypingText from '@/components/ai/TypingText'
@@ -24,6 +25,7 @@ import { useAICompanion } from '@/engine/aiCompanionContext'
 
 interface CookingStoryProps {
   dish: Ingredient[]
+  cookingMethod: string
   onFinish: (result: CookingResult) => void
   /** When true, auto-enables AI cooking mode (demo) */
   autoCook?: boolean
@@ -53,7 +55,7 @@ type StoryPhase = 'intro' | 'cooking' | 'finishing'
 /*  CookingStory — the full cooking simulation                         */
 /* ------------------------------------------------------------------ */
 
-export default function CookingStory({ dish, onFinish, autoCook }: CookingStoryProps) {
+export default function CookingStory({ dish, cookingMethod, onFinish, autoCook }: CookingStoryProps) {
   // --- State ---
   const { t, lang } = useLanguage()
   const { setMood, showMessage } = useAICompanion()
@@ -75,6 +77,10 @@ export default function CookingStory({ dish, onFinish, autoCook }: CookingStoryP
 
   const progress = 1 - remaining / recommended
   const dishName = nameDish(dish)
+  const methodInfo = useMemo(
+    () => COOKING_METHODS.find((m) => m.id === cookingMethod) ?? COOKING_METHODS[0],
+    [cookingMethod],
+  )
 
   // --- Chef state ----------------------------------------------------
   const chefState: ChefAnimState = useMemo(() => {
@@ -284,6 +290,13 @@ export default function CookingStory({ dish, onFinish, autoCook }: CookingStoryP
               >
                 {dishName}
               </h1>
+              {/* Cooking method badge */}
+              <div className="mt-1 flex items-center gap-1.5">
+                <span className="text-xs">{methodInfo.emoji}</span>
+                <span className="font-terminal text-[9px] text-cream/50 tracking-wider uppercase">
+                  {methodInfo.labelEn}
+                </span>
+              </div>
             </div>
           </div>
 

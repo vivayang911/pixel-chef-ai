@@ -25,6 +25,7 @@ export default function App() {
   const [route, setRoute] = useState<Route>('home')
   const [dish, setDish] = useState<Ingredient[]>([])
   const [cookingResult, setCookingResult] = useState<CookingResult | null>(null)
+  const [cookingMethod, setCookingMethod] = useState('stir-fry')
   const [demoMode, setDemoMode] = useState(false)
   const [autoSelectDemo, setAutoSelectDemo] = useState(false)
   const [autoCookDemo, setAutoCookDemo] = useState(false)
@@ -89,8 +90,9 @@ export default function App() {
                   setAutoSelectDemo(false)
                   setRoute('home')
                 }}
-                onStartCooking={(ingredients) => {
+                onStartCooking={(ingredients, method) => {
                   setDish(ingredients)
+                  setCookingMethod(method)
                   setAutoSelectDemo(false)
                   if (autoSelectDemo) {
                     // Demo mode: auto-navigate to cooking after a brief delay
@@ -115,6 +117,7 @@ export default function App() {
             <PageTransition routeKey="story">
               <CookingStory
                 dish={dish}
+                cookingMethod={cookingMethod}
                 onFinish={(result) => {
                   setCookingResult(result)
                   setAutoCookDemo(false)
@@ -130,6 +133,7 @@ export default function App() {
               <ResultPreview
                 result={cookingResult}
                 ingredients={dish}
+                method={cookingMethod}
                 onBack={() => setRoute('home')}
                 onRetry={() => setRoute('studio')}
                 onMemory={() => setRoute('memory')}
