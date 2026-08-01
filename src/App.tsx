@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { AnimatePresence } from 'framer-motion'
 import { LanguageProvider } from '@/i18n/LanguageContext'
 import { AICompanionProvider } from '@/engine/aiCompanionContext'
@@ -14,6 +14,7 @@ import PageTransition from '@/components/common/PageTransition'
 import OnboardingTutorial from '@/components/common/OnboardingTutorial'
 import DemoMode from '@/components/demo/DemoMode'
 import type { CookingResult } from '@/engine/cookingEngine'
+import { computeCookingResult } from '@/engine/cookingEngine'
 import type { Ingredient } from '@/types/food'
 import { INGREDIENTS } from '@/types/food'
 
@@ -22,7 +23,15 @@ type Route = 'home' | 'studio' | 'story' | 'result' | 'memory'
 const DEMO_INGREDIENT_IDS = ['pork-belly', 'broccoli', 'mushroom']
 
 export default function App() {
-  const [route, setRoute] = useState<Route>('home')
+  const [route, setRoute] = useState<Route>(() => {
+    // Support URL hash routing for screenshots: #studio, #story, #result, #memory
+    if (typeof window !== 'undefined') {
+      const hash = window.location.hash.replace('#', '')
+      const validRoutes: Route[] = ['home', 'studio', 'story', 'result', 'memory']
+      if (validRoutes.includes(hash as Route)) return hash as Route
+    }
+    return 'home'
+  })
   const [dish, setDish] = useState<Ingredient[]>([])
   const [cookingResult, setCookingResult] = useState<CookingResult | null>(null)
   const [cookingMethod, setCookingMethod] = useState('stir-fry')
@@ -30,6 +39,40 @@ export default function App() {
   const [autoSelectDemo, setAutoSelectDemo] = useState(false)
   const [autoCookDemo, setAutoCookDemo] = useState(false)
   const demoDoneRef = useRef(false)
+
+  // Sync URL hash with route state
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.location.hash = route === 'home' ? '' : route
+    }
+  }, [route])
+
+  // Listen for hash changes (for screenshot tools)
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '')
+      const validRoutes: Route[] = ['home', 'studio', 'story', 'result', 'memory']
+      if (!hash || !validRoutes.includes(hash as Route)) return
+      const demoList = DEMO_INGREDIENT_IDS
+        .map((id) => INGREDIENTS.find((i) => i.id === id))
+        .filter((i): i is Ingredient => i !== undefined)
+      setDish(demoList)
+      setCookingMethod('stir-fry')
+
+      // For result/memory pages, generate a sample cooking result
+      if (hash === 'result' || hash === 'memory') {
+        const sampleResult = computeCookingResult(demoList, 17, 18, ['perfectFlavor'], 'en')
+        setCookingResult(sampleResult)
+      }
+
+      if (hash === 'story') setAutoCookDemo(true)
+
+      setRoute(hash as Route)
+    }
+    handleHashChange()
+    window.addEventListener('hashchange', handleHashChange)
+    return () => window.removeEventListener('hashchange', handleHashChange)
+  }, [])
 
   // Demo mode: start the showcase
   const handleStartDemo = useCallback(() => {
