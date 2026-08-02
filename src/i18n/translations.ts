@@ -65,6 +65,7 @@ export const translations = {
       aiChefStory: 'AI CHEF STORY',
       aiDecisionLog: 'AI DECISION LOG',
       totalScore: 'Total Score',
+      continue: 'View Memory',
     },
     memory: {
       cookingMemory: 'COOKING MEMORY',
@@ -76,6 +77,9 @@ export const translations = {
       analyzing: 'PIXEL AI · Analyzing memory',
       backToKitchen: '◀ Back to Kitchen',
       cookNew: '🔄 Cook Something New',
+      aiUnderstanding: 'AI has analyzed your cooking DNA and here\'s what it found:',
+      firstCookAI: 'This is your first cooking session. PIXEL is starting to build your Taste DNA.',
+      noHistory: 'Your first dish! PIXEL is beginning to learn your taste profile.',
     },
     timeline: {
       title: 'YOUR MEMORY TIMELINE',
@@ -220,6 +224,7 @@ export const translations = {
       aiChefStory: 'AI 主厨故事',
       aiDecisionLog: 'AI 决策日志',
       totalScore: '总分',
+      continue: '查看记忆',
     },
     memory: {
       cookingMemory: '烹饪记忆',
@@ -231,6 +236,9 @@ export const translations = {
       analyzing: 'PIXEL AI · 记忆分析中',
       backToKitchen: '◀ 回厨房',
       cookNew: '🔄 再做一道',
+      aiUnderstanding: 'AI 已经分析了你的烹饪 DNA，这是分析结果：',
+      firstCookAI: '这是你的第一次烹饪。PIXEL 正在开始构建你的味觉 DNA。',
+      noHistory: '你的第一道菜！PIXEL 正在学习你的口味偏好。',
     },
     timeline: {
       title: '你的记忆时间线',
@@ -375,6 +383,7 @@ export const translations = {
       aiChefStory: 'AI シェフストーリー',
       aiDecisionLog: 'AI 決定ログ',
       totalScore: '総合スコア',
+      continue: '記憶を見る',
     },
     memory: {
       cookingMemory: '料理のキロク',
@@ -386,6 +395,9 @@ export const translations = {
       analyzing: 'PIXEL AI · 記憶を分析中',
       backToKitchen: '◀ キッチンに戻る',
       cookNew: '🔄 別の料理を作る',
+      aiUnderstanding: 'AI が料理の DNA を分析しました。結果はこちら：',
+      firstCookAI: '初めての料理です。PIXEL があなたの味覚 DNA を構築し始めています。',
+      noHistory: '初めての一皿！PIXEL があなたの味の好みを学習しています。',
     },
     timeline: {
       title: 'あなたの記憶タイムライン',

@@ -40,6 +40,22 @@ const AMBIENT = [
   { c: 'bg-grape', x: '4%', y: '78%', s: 7 },
 ]
 
+/** Floating AI data nodes for premium studio feel */
+const AI_STUDIO_NODES = [
+  { label: 'TASTE DB', c: 'bg-grape/60', x: '12%', y: '8%', duration: 3.5 },
+  { label: 'FLAVOR AI', c: 'bg-mint/60', x: '82%', y: '6%', duration: 4.2 },
+  { label: 'PAIRING', c: 'bg-cheese/60', x: '76%', y: '82%', duration: 3.8 },
+  { label: 'NUTRITION', c: 'bg-sky/60', x: '18%', y: '84%', duration: 4.5 },
+]
+
+/** AI scanning status messages */
+const SCAN_STATUS_MSGS = [
+  'Taste profile loaded...',
+  'Flavor pairing matrix ready...',
+  'Nutrition database synced...',
+  'Cooking method optimal...',
+]
+
 /** The AI Memory Cooking Studio: pick ingredients, feed the pot, get memory advice. */
 export default function CreateDish({
   onBack,
@@ -63,8 +79,19 @@ export default function CreateDish({
   const feedback = useMemo(() => generateFeedback(selected, lang), [selected, lang])
   const [showAIPanel, setShowAIPanel] = useState(false)
   const [aiPanelDismissed, setAIPanelDismissed] = useState(false)
+  const [aiScanStatus, setAiScanStatus] = useState(0)
 
   const flavor = useMemo(() => predictFlavor(selected), [selected])
+
+  // Rotate AI scan status messages when ingredients are selected but not enough
+  useEffect(() => {
+    if (selected.length > 0 && selected.length < 3) {
+      const id = setInterval(() => {
+        setAiScanStatus((prev) => (prev + 1) % SCAN_STATUS_MSGS.length)
+      }, 2500)
+      return () => clearInterval(id)
+    }
+  }, [selected.length])
 
   // AI Companion: set curious mood on enter
   useEffect(() => {
@@ -181,6 +208,9 @@ export default function CreateDish({
     setFlying((prev) => prev.filter((f) => f.key !== item.key))
   }
 
+  // Pairing confidence based on selected count
+  const pairingConfidence = selected.length >= 3 ? 92 : selected.length >= 2 ? 65 : selected.length >= 1 ? 35 : 0
+
   return (
     <section className="relative overflow-hidden py-10 sm:py-14">
       {/* Ambient floating pixels */}
@@ -193,6 +223,29 @@ export default function CreateDish({
           transition={{ duration: 4 + i, repeat: Infinity, ease: 'easeInOut' }}
         />
       ))}
+
+      {/* AI Studio Data Nodes */}
+      {AI_STUDIO_NODES.map((node, i) => (
+        <motion.div
+          key={`node-${i}`}
+          className="pointer-events-none absolute"
+          style={{ left: node.x, top: node.y }}
+          animate={{ y: [0, -10, 0], opacity: [0.3, 0.7, 0.3] }}
+          transition={{ duration: node.duration, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
+        >
+          <motion.span className={`mx-auto block ${node.c}`} style={{ width: 4, height: 4 }} />
+          <span className="block text-center font-mono text-[6px] text-cream/20 tracking-widest mt-0.5">
+            {node.label}
+          </span>
+        </motion.div>
+      ))}
+
+      {/* Kitchen scanline effect */}
+      <motion.div
+        className="pointer-events-none absolute inset-x-0 top-0 h-px bg-cheese/5"
+        animate={{ top: ['10%', '90%', '10%'], opacity: [0, 1, 0] }}
+        transition={{ duration: 5, repeat: Infinity, ease: 'linear' }}
+      />
 
       {/* Flying ingredient layer (click point → pot) */}
       <AnimatePresence>
@@ -216,17 +269,33 @@ export default function CreateDish({
           <PixelButton variant="ghost" onClick={onBack}>
             {t('common.back')}
           </PixelButton>
-          <motion.h1
+          <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ type: 'spring', stiffness: 240, damping: 20 }}
-            className="font-pixel text-lg leading-relaxed text-cream sm:text-2xl"
+            className="flex items-center gap-3"
           >
-            {t('studio.title')}
-          </motion.h1>
-          <span className="hidden border-4 border-ink bg-grape px-3 py-1 font-pixel text-[8px] text-ink shadow-pixel-sm sm:inline-block">
-            {t('studio.step')}
-          </span>
+            <span className="text-lg">🧑‍🍳</span>
+            <h1 className="font-pixel text-lg leading-relaxed text-cream sm:text-2xl">
+              {t('studio.title')}
+            </h1>
+          </motion.div>
+          {/* AI status badge */}
+          <div className="flex items-center gap-2">
+            {selected.length > 0 && selected.length < 3 && (
+              <motion.span
+                key={aiScanStatus}
+                initial={{ opacity: 0, y: 4 }}
+                animate={{ opacity: 0.6, y: 0 }}
+                className="hidden font-mono text-[9px] text-grape/60 sm:inline"
+              >
+                {SCAN_STATUS_MSGS[aiScanStatus]}
+              </motion.span>
+            )}
+            <span className="hidden border-4 border-ink bg-grape px-3 py-1 font-pixel text-[8px] text-ink shadow-pixel-sm sm:inline-block">
+              {t('studio.step')}
+            </span>
+          </div>
         </div>
 
         <div className="grid items-start gap-8 lg:grid-cols-[290px_1fr_320px]">
@@ -235,6 +304,38 @@ export default function CreateDish({
 
           {/* Center: the pot + start button */}
           <div className="flex flex-col items-center gap-8">
+            {/* AI pairing confidence indicator */}
+            {selected.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="flex items-center gap-3 border border-grape/20 bg-grape/5 px-4 py-2"
+              >
+                <div className="flex items-center gap-1.5">
+                  <span className="font-mono text-[8px] text-grape/60 uppercase tracking-wider">AI Pairing</span>
+                  <span className="font-pixel text-sm text-grape">{pairingConfidence}%</span>
+                </div>
+                <div className="h-3 w-px bg-grape/20" />
+                <div className="flex items-center gap-1">
+                  {selected.map((ing) => (
+                    <div
+                      key={ing.id}
+                      className="h-3 w-3 border border-grape/40 opacity-60"
+                      style={{ backgroundColor: ing.color ?? '#5a4fa0' }}
+                    />
+                  ))}
+                </div>
+                {/* Connecting line animation */}
+                {selected.length >= 2 && (
+                  <motion.div
+                    className="h-px w-8 bg-gradient-to-r from-grape/40 to-transparent"
+                    animate={{ scaleX: [0.5, 1, 0.5] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  />
+                )}
+              </motion.div>
+            )}
+
             <div ref={potRef} className="flex w-full justify-center">
               <CookingPot items={selected} ready={ready} />
             </div>
@@ -247,6 +348,24 @@ export default function CreateDish({
                 <span className="text-tomato">{t('studio.needProtein')}</span>
               )}
             </p>
+
+            {/* AI scan pulse for ready state */}
+            {ready && !showAIPanel && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="flex items-center gap-2"
+              >
+                <motion.span
+                  className="h-2 w-2 bg-mint"
+                  animate={{ scale: [1, 1.8, 1], opacity: [0.6, 1, 0.6] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
+                <span className="font-mono text-[9px] text-mint/70 uppercase tracking-wider">
+                  AI Ready to analyze
+                </span>
+              </motion.div>
+            )}
 
             <motion.div
               animate={ready ? { scale: [1, 1.05, 1] } : { scale: 1 }}

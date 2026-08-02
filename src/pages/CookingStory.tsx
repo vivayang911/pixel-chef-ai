@@ -45,6 +45,37 @@ const RANDOM_CHAT: string[] = [
   'Every chef has their own rhythm. Yours is beautiful 🎵',
 ]
 
+/* Cooking strategy tips by phase */
+const STRATEGY_TIPS: Record<string, string[]> = {
+  heat: [
+    'Start with medium-high heat for protein',
+    'Pre-heat pan for 15s before adding oil',
+    'Watch for the oil shimmer — that\'s your cue',
+  ],
+  sizzle: [
+    'Listen to the sizzle — steady is perfect',
+    'Don\'t overcrowd the pan for best texture',
+    'Let ingredients develop a golden crust',
+  ],
+  season: [
+    'Season in layers for depth of flavor',
+    'Fresh herbs at the end conserve aroma',
+    'A splash of acid brightens everything',
+  ],
+  finish: [
+    'Rest proteins 2-3 min before serving',
+    'Taste and adjust — your palate is key',
+    'The final 30s matter most for texture',
+  ],
+}
+
+const HEAT_RECOMMENDATIONS: Record<string, string> = {
+  heat: 'Medium-High',
+  sizzle: 'Medium',
+  season: 'Medium-Low',
+  finish: 'Low',
+}
+
 /* ------------------------------------------------------------------ */
 /*  Page state machine types                                           */
 /* ------------------------------------------------------------------ */
@@ -59,7 +90,7 @@ export default function CookingStory({ dish, cookingMethod, onFinish, autoCook }
   // --- State ---
   const { t, lang } = useLanguage()
   const { setMood, showMessage } = useAICompanion()
-  const recommended = useMemo(() => getRecommendedTime(dish), [dish])
+  const recommended = useMemo(() => getRecommendedTime(dish), [recommended]) // eslint-disable-line react-hooks/exhaustive-deps
   const [phase, setPhase] = useState<StoryPhase>('intro')
   const [remaining, setRemaining] = useState(recommended)
   const [timerPaused, setTimerPaused] = useState(false)
@@ -70,6 +101,7 @@ export default function CookingStory({ dish, cookingMethod, onFinish, autoCook }
   const [showAutoPanel, setShowAutoPanel] = useState(false)
   const [autoProgress, setAutoProgress] = useState(0)
   const [aiBonus, setAiBonus] = useState(0)
+  const [strategyTip, setStrategyTip] = useState(0)
   // --- Refs ---
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const eventTimers = useRef<ReturnType<typeof setTimeout>[]>([])
@@ -91,6 +123,19 @@ export default function CookingStory({ dish, cookingMethod, onFinish, autoCook }
     return 'taste'
   }, [phase, progress])
 
+  // --- Timeline / strategy phase ---
+  const timelinePhase: string = progress < 0.25 ? 'heat' : progress < 0.5 ? 'sizzle' : progress < 0.75 ? 'season' : 'finish'
+
+  // Rotate strategy tips
+  useEffect(() => {
+    if (phase !== 'cooking') return
+    const tips = STRATEGY_TIPS[timelinePhase] ?? STRATEGY_TIPS.heat
+    const id = setInterval(() => {
+      setStrategyTip((prev) => (prev + 1) % tips.length)
+    }, 4000)
+    return () => clearInterval(id)
+  }, [phase, timelinePhase])
+
   // --- Timestep ------------------------------------------------------
   const tick = useCallback(() => {
     setRemaining((prev) => Math.max(0, prev - 1))
@@ -100,7 +145,7 @@ export default function CookingStory({ dish, cookingMethod, onFinish, autoCook }
     if (intervalRef.current) { clearInterval(intervalRef.current); intervalRef.current = null }
   }, [])
 
-  // --- AI auto-handle events (declared before triggerEvent to avoid TDZ in deps) ---
+  // --- AI auto-handle events ---
   const handleAutoResolveEvent = useCallback((eventType: CookingEventType) => {
     if (eventType === 'fireTooHigh' || eventType === 'tooFast') {
       setAiBonus((prev) => prev + 3)
@@ -117,19 +162,16 @@ export default function CookingStory({ dish, cookingMethod, onFinish, autoCook }
       setTimerPaused(true)
       setActiveEvent(def)
       setFiredEvents((prev) => [...prev, type])
-      // Use AI-generated advice text
       const advice = generateCookingAdvice(dish, type, progress, lang)
       setAiText(advice.message)
 
       if (aiAutoMode) {
-        // Auto-resolve quickly in AI mode
         const t = setTimeout(() => {
           handleAutoResolveEvent(type)
           setAiText(getRandomPhrase(lang))
         }, 1200)
         eventTimers.current.push(t)
       } else {
-        // Normal unpause after event card duration
         const t = setTimeout(() => {
           setActiveEvent(null)
           setTimerPaused(false)
@@ -146,9 +188,8 @@ export default function CookingStory({ dish, cookingMethod, onFinish, autoCook }
     setAiBonus((prev) => prev + 5)
     setTimerPaused(false)
     setActiveEvent(null)
-    // Show AI gratitude
     const advice = generateCookingAdvice(dish, activeEvent.id, progress, lang)
-    setAiText(`✅ ${advice.message.split('.')[0]}. (Score +5)`)
+    setAiText('✅ ' + advice.message.split('.')[0] + '. (Score +5)')
   }, [activeEvent, dish, progress, lang])
 
   // --- Finish cooking ------------------------------------------------
@@ -157,7 +198,6 @@ export default function CookingStory({ dish, cookingMethod, onFinish, autoCook }
     setPhase('finishing')
     const elapsed = recommended - Math.max(remaining, 0)
     const baseResult = computeCookingResult(dish, elapsed, recommended, firedEvents, lang)
-    // Apply AI bonus
     const result: CookingResult = {
       ...baseResult,
       score: {
@@ -166,24 +206,22 @@ export default function CookingStory({ dish, cookingMethod, onFinish, autoCook }
         creativity: Math.min(100, baseResult.score.creativity + Math.floor(aiBonus * 0.6)),
       },
     }
-    // Small delay for the chef to react
     setTimeout(() => onFinish(result), 2000)
   }, [stopTimer, dish, recommended, remaining, firedEvents, onFinish, aiBonus])
 
-  // --- Auto-finish when timer hits 0 ----------------------------------
+  // --- Auto-finish when timer hits 0 ---
   useEffect(() => {
     if (phase === 'cooking' && remaining <= 0) {
       finishCooking()
     }
   }, [remaining, phase, finishCooking])
 
-  // --- Main cooking loop: intro → start timer -------------------------
+  // --- Main cooking loop ---
   useEffect(() => {
     if (phase !== 'cooking') return
     if (hasStarted.current) return
     hasStarted.current = true
 
-    // Schedule events
     const schedule = scheduleEvents(recommended)
     for (const { type, atRemaining } of schedule) {
       const delay = (recommended - atRemaining) * 1000
@@ -191,7 +229,6 @@ export default function CookingStory({ dish, cookingMethod, onFinish, autoCook }
       eventTimers.current.push(t)
     }
 
-    // Timer tick (respects pause, runs faster in AI auto mode)
     intervalRef.current = setInterval(() => {
       setTimerPaused((paused) => {
         if (!paused) tick()
@@ -203,17 +240,16 @@ export default function CookingStory({ dish, cookingMethod, onFinish, autoCook }
     }, 1000)
   }, [phase, recommended, triggerEvent, tick, aiAutoMode])
 
-  // --- Random AI chat during cooking ----------------------------------
+  // --- Random AI chat during cooking ---
   useEffect(() => {
     if (phase !== 'cooking') return
     const pick = () => {
-      if (activeEvent) return // keep event message
-      // Small chance of random chat
-      if (Math.random() > 0.35) return
+      if (activeEvent) return
+      if (Math.random() > 0.3) return
       setAiText(RANDOM_CHAT[Math.floor(Math.random() * RANDOM_CHAT.length)])
     }
     pick()
-    const id = setInterval(pick, 4500)
+    const id = setInterval(pick, 5000)
     return () => clearInterval(id)
   }, [phase, activeEvent])
 
@@ -225,23 +261,20 @@ export default function CookingStory({ dish, cookingMethod, onFinish, autoCook }
     }
   }, [phase, setMood, showMessage, t])
 
-  // --- Intro → cooking auto-transition --------------------------------
+  // --- Intro → cooking auto-transition ---
   useEffect(() => {
     const timer = setTimeout(() => {
       setPhase('cooking')
       setAiText(t('cooking.aiIntro'))
     }, 2500)
     return () => clearTimeout(timer)
-  }, [])
+  }, [t])
 
-  // --- Cleanup --------------------------------------------------------
+  // --- Cleanup ---
   useEffect(() => () => {
     stopTimer()
     eventTimers.current.forEach(clearTimeout)
   }, [stopTimer])
-
-  // --- Timeline helper ------------------------------------------------
-  const timelinePhase = progress < 0.25 ? 'heat' : progress < 0.5 ? 'sizzle' : progress < 0.75 ? 'season' : 'finish'
 
   /* ================================================================ */
   /*  Render                                                           */
@@ -261,258 +294,329 @@ export default function CookingStory({ dish, cookingMethod, onFinish, autoCook }
         ))}
       </div>
 
-      <Container className="flex flex-1 flex-col items-center justify-between py-8">
-        {/* ── Top: AI Status Bar ── */}
-        <div className="flex w-full max-w-2xl items-center justify-between">
-          <div className="flex items-center gap-3">
-            <motion.div
-              animate={phase === 'cooking' && !timerPaused ? { scale: [1, 1.2, 1] } : { scale: 1 }}
-              transition={{ duration: 1.8, repeat: Infinity }}
-            >
-              <PixelChefAnimation state={chefState} />
-            </motion.div>
-
-            <div>
-              <span
-                className={`inline-block border-2 border-ink px-2 py-0.5 font-pixel text-[7px] shadow-pixel-sm ${
-                  phase === 'intro'
-                    ? 'bg-cheese text-ink'
-                    : phase === 'finishing'
-                      ? 'bg-mint text-ink'
-                      : 'bg-tomato text-ink'
-                }`}
-              >
-                {phase === 'intro' ? t('cooking.getReady') : phase === 'finishing' ? t('cooking.done') : t('cooking.cooking')}
-              </span>
-              <h1
-                className="mt-1 max-w-48 truncate font-pixel text-[11px] text-cream sm:text-base"
-                title={dishName}
-              >
-                {dishName}
-              </h1>
-              {/* Cooking method badge */}
-              <div className="mt-1 flex items-center gap-1.5">
-                <span className="text-xs">{methodInfo.emoji}</span>
-                <span className="font-terminal text-[9px] text-cream/50 tracking-wider uppercase">
-                  {methodInfo.labelEn}
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {phase === 'intro' && (
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 animate-blink bg-cheese" />
-              <span className="font-terminal text-base text-cream/70">{t('cooking.warmingUp')}</span>
-            </div>
-          )}
-        </div>
-
-        {/* ── Middle: Chef + Pot + Fire ── */}
-        <div className="relative flex flex-1 items-center justify-center py-8">
-          <motion.div
-            key={phase}
-            initial={{ opacity: 0, scale: 0.85 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 18 }}
-            className="relative flex flex-col items-center"
-          >
-            {/* Chef center stage */}
-            <div className="relative">
-              <PixelChefAnimation state={chefState} />
-
-              {/* Pot beneath chef */}
-              <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
-                <svg
-                  viewBox="0 0 48 28"
-                  className="h-auto w-28"
-                  shapeRendering="crispEdges"
-                  aria-hidden
-                >
-                  <rect x="0" y="10" width="6" height="4" fill="#3d3570" />
-                  <rect x="42" y="10" width="6" height="4" fill="#3d3570" />
-                  <rect x="6" y="6" width="36" height="3" fill="#5a4fa0" />
-                  <rect x="4" y="14" width="40" height="12" fill="#2c2550" />
-                  <rect x="4" y="14" width="5" height="12" fill="#3d3570" />
-                  <rect x="4" y="22" width="40" height="4" fill="#15122b" />
-                  <rect x="30" y="18" width="3" height="3" fill="#ffcb3b" />
-                  <rect x="10" y="26" width="4" height="2" fill="#15122b" />
-                  <rect x="34" y="26" width="4" height="2" fill="#15122b" />
-                </svg>
-
-                {/* Fire under pot */}
-                {phase === 'cooking' && (
-                  <div className="absolute left-1/2 top-full -translate-x-1/2">
-                    <FireEffect
-                      intensity={
-                        activeEvent?.id === 'fireTooHigh'
-                          ? 'high'
-                          : progress > 0.5
-                            ? 'medium'
-                            : 'low'
-                      }
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Event popup overlay */}
-          <CookingEvent
-            event={activeEvent}
-            onFix={handleFixEvent}
-            showActions={!aiAutoMode && activeEvent !== null}
-          />
-        </div>
-
-        {/* ── AI Chat Bubble ── */}
-        <AnimatePresence mode="wait">
-          {aiText && (
-            <motion.div
-              key={aiText}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.3 }}
-              className="relative mx-auto mb-6 w-full max-w-lg border-4 border-ink bg-ink-panel px-5 py-3 shadow-pixel"
-            >
-              {/* Bubble tail */}
-              <div className="absolute -top-[6px] left-6 h-3 w-3 rotate-45 border-l-4 border-t-4 border-ink bg-ink-panel" />
-              <p className="font-sans text-sm leading-relaxed text-cream/90">
-                <TypingText text={aiText} speed={35} />
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* ── Bottom: Timer + Timeline + Button ── */}
-        <div className="flex w-full max-w-2xl flex-col gap-5">
-          {/* Timer */}
-          {phase === 'cooking' && (
-            <div className="flex items-center justify-between">
-              <CookingTimer remaining={remaining} total={recommended} paused={timerPaused} />
-              <span className="hidden font-terminal text-base text-cream/40 sm:inline">
-                {recommended - remaining}s / {recommended}s
-              </span>
-            </div>
-          )}
-
-          {/* Timeline */}
-          <CookingTimeline phase={timelinePhase} progress={progress} firedEvents={firedEvents} />
-
-          {/* Action buttons */}
-          <div className="flex items-center justify-center gap-4 pt-2">
-            {phase === 'cooking' && !aiAutoMode && (
-              <>
+      <div className="flex flex-1 lg:flex-row flex-col">
+        {/* ── Main cooking area ── */}
+        <div className="flex flex-1 flex-col">
+          <Container className="flex flex-1 flex-col items-center justify-between py-8">
+            {/* ── Top: AI Status Bar ── */}
+            <div className="flex w-full max-w-2xl items-center justify-between">
+              <div className="flex items-center gap-3">
                 <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{
-                    opacity: remaining <= 10 ? 1 : remaining > recommended * 0.8 ? 0.3 : 1,
-                    y: 0,
-                  }}
+                  animate={phase === 'cooking' && !timerPaused ? { scale: [1, 1.2, 1] } : { scale: 1 }}
+                  transition={{ duration: 1.8, repeat: Infinity }}
                 >
-                  <PixelButton
-                    variant="tomato"
-                    disabled={remaining > recommended * 0.8}
-                    onClick={finishCooking}
-                  >
-                    ⏹ {t('cooking.finishButton')}
-                  </PixelButton>
+                  <PixelChefAnimation state={chefState} />
                 </motion.div>
 
-                {/* AI Auto Cook button */}
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  <PixelButton
-                    variant="ghost"
-                    onClick={() => {
-                      setAiAutoMode(true)
-                      setShowAutoPanel(true)
-                      setAiText('🤖 ' + t('cooking.aiCooking'))
-                    }}
-                    className="border-cheese text-cheese text-[10px]"
+                <div>
+                  <span
+                    className={`inline-block border-2 border-ink px-2 py-0.5 font-pixel text-[7px] shadow-pixel-sm ${
+                      phase === 'intro'
+                        ? 'bg-cheese text-ink'
+                        : phase === 'finishing'
+                          ? 'bg-mint text-ink'
+                          : 'bg-tomato text-ink'
+                    }`}
                   >
-                    🤖 {t('cooking.autoCook')}
-                  </PixelButton>
-                </motion.div>
-              </>
-            )}
-
-            {/* AI Auto Cook Progress Panel */}
-            <AnimatePresence>
-              {aiAutoMode && showAutoPanel && phase === 'cooking' && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="fixed bottom-8 left-1/2 z-30 w-80 -translate-x-1/2 rounded border-2 border-cheese bg-ink p-4 shadow-pixel"
-                >
-                  <div className="flex items-center gap-2 mb-3">
-                    <motion.span
-                      className="text-2xl"
-                      animate={{ rotate: [0, 10, -10, 0] }}
-                      transition={{ repeat: Infinity, duration: 2 }}
-                    >
-                      🤖
-                    </motion.span>
-                    <p className="font-pixel text-sm text-cheese">{t('cooking.aiCooking')}</p>
+                    {phase === 'intro' ? t('cooking.getReady') : phase === 'finishing' ? t('cooking.done') : t('cooking.cooking')}
+                  </span>
+                  <h1 className="mt-1 max-w-48 truncate font-pixel text-[11px] text-cream sm:text-base" title={dishName}>
+                    {dishName}
+                  </h1>
+                  <div className="mt-1 flex items-center gap-1.5">
+                    <span className="text-xs">{methodInfo.emoji}</span>
+                    <span className="font-terminal text-[9px] text-cream/50 tracking-wider uppercase">
+                      {methodInfo.labelEn}
+                    </span>
                   </div>
+                </div>
+              </div>
 
-                  {/* Analysis steps */}
-                  <div className="space-y-1.5 mb-3">
-                    {[
-                      { label: 'Heat', key: '✓' },
-                      { label: 'Timing', key: autoProgress > 25 ? '✓' : '○' },
-                      { label: 'Flavor', key: autoProgress > 50 ? '✓' : '○' },
-                      { label: 'Nutrition', key: autoProgress > 75 ? '✓' : '○' },
-                    ].map((item) => (
-                      <div key={item.label} className="flex items-center gap-2">
-                        <span className={`font-terminal text-xs ${item.key === '✓' ? 'text-mint' : 'text-cream/30'}`}>
-                          {item.key}
-                        </span>
-                        <span className="font-terminal text-[10px] text-cream/60">
-                          {t('cooking.analyzing')}: {item.label}
-                        </span>
+              {phase === 'intro' && (
+                <div className="flex items-center gap-2">
+                  <span className="h-2 w-2 animate-blink bg-cheese" />
+                  <span className="font-terminal text-base text-cream/70">{t('cooking.warmingUp')}</span>
+                </div>
+              )}
+            </div>
+
+            {/* ── Middle: Chef + Pot + Fire ── */}
+            <div className="relative flex flex-1 items-center justify-center py-8">
+              <motion.div
+                key={phase}
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ type: 'spring', stiffness: 200, damping: 18 }}
+                className="relative flex flex-col items-center"
+              >
+                <div className="relative">
+                  <PixelChefAnimation state={chefState} />
+
+                  <div className="absolute -bottom-10 left-1/2 -translate-x-1/2">
+                    <svg viewBox="0 0 48 28" className="h-auto w-28" shapeRendering="crispEdges" aria-hidden>
+                      <rect x="0" y="10" width="6" height="4" fill="#3d3570" />
+                      <rect x="42" y="10" width="6" height="4" fill="#3d3570" />
+                      <rect x="6" y="6" width="36" height="3" fill="#5a4fa0" />
+                      <rect x="4" y="14" width="40" height="12" fill="#2c2550" />
+                      <rect x="4" y="14" width="5" height="12" fill="#3d3570" />
+                      <rect x="4" y="22" width="40" height="4" fill="#15122b" />
+                      <rect x="30" y="18" width="3" height="3" fill="#ffcb3b" />
+                      <rect x="10" y="26" width="4" height="2" fill="#15122b" />
+                      <rect x="34" y="26" width="4" height="2" fill="#15122b" />
+                    </svg>
+
+                    {phase === 'cooking' && (
+                      <div className="absolute left-1/2 top-full -translate-x-1/2">
+                        <FireEffect intensity={activeEvent?.id === 'fireTooHigh' ? 'high' : progress > 0.5 ? 'medium' : 'low'} />
                       </div>
-                    ))}
+                    )}
                   </div>
+                </div>
+              </motion.div>
 
-                  {/* Optimization progress */}
-                  <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="font-pixel text-[8px] text-cream/50">
-                        {t('cooking.aiOptimizing')}
-                      </span>
-                      <span className="font-pixel text-xs text-cheese">{autoProgress}%</span>
-                    </div>
-                    <div className="h-2 overflow-hidden rounded-full bg-cream/10">
-                      <motion.div
-                        className="h-full rounded-full bg-cheese"
-                        initial={{ width: 0 }}
-                        animate={{ width: `${autoProgress}%` }}
-                      />
-                    </div>
-                  </div>
+              <CookingEvent event={activeEvent} onFix={handleFixEvent} showActions={!aiAutoMode && activeEvent !== null} />
+            </div>
+
+            {/* ── AI Chat Bubble ── */}
+            <AnimatePresence mode="wait">
+              {aiText && (
+                <motion.div
+                  key={aiText}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -6 }}
+                  transition={{ duration: 0.3 }}
+                  className="relative mx-auto mb-6 w-full max-w-lg border-4 border-ink bg-ink-panel px-5 py-3 shadow-pixel"
+                >
+                  <div className="absolute -top-[6px] left-6 h-3 w-3 rotate-45 border-l-4 border-t-4 border-ink bg-ink-panel" />
+                  <p className="font-sans text-sm leading-relaxed text-cream/90">
+                    <TypingText text={aiText} speed={35} />
+                  </p>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {phase === 'finishing' && (
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="font-terminal text-base text-cheese"
-              >
-                {t('cooking.tasting')}
-              </motion.p>
-            )}
-          </div>
+            {/* ── Bottom: Timer + Timeline + Button ── */}
+            <div className="flex w-full max-w-2xl flex-col gap-5">
+              {phase === 'cooking' && (
+                <div className="flex items-center justify-between">
+                  <CookingTimer remaining={remaining} total={recommended} paused={timerPaused} />
+                  <span className="hidden font-terminal text-base text-cream/40 sm:inline">
+                    {recommended - remaining}s / {recommended}s
+                  </span>
+                </div>
+              )}
+
+              <CookingTimeline phase={timelinePhase} progress={progress} firedEvents={firedEvents} />
+
+              {/* Action buttons */}
+              <div className="flex items-center justify-center gap-4 pt-2">
+                {phase === 'cooking' && !aiAutoMode && (
+                  <>
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{
+                        opacity: remaining <= 10 ? 1 : remaining > recommended * 0.8 ? 0.3 : 1,
+                        y: 0,
+                      }}
+                    >
+                      <PixelButton variant="tomato" disabled={remaining > recommended * 0.8} onClick={finishCooking}>
+                        ⏹ {t('cooking.finishButton')}
+                      </PixelButton>
+                    </motion.div>
+
+                    <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.5 }}>
+                      <PixelButton
+                        variant="ghost"
+                        onClick={() => {
+                          setAiAutoMode(true)
+                          setShowAutoPanel(true)
+                          setAiText('🤖 ' + t('cooking.aiCooking'))
+                        }}
+                        className="border-cheese text-cheese text-[10px]"
+                      >
+                        🤖 {t('cooking.autoCook')}
+                      </PixelButton>
+                    </motion.div>
+                  </>
+                )}
+
+                {/* AI Auto Cook Progress Panel */}
+                <AnimatePresence>
+                  {aiAutoMode && showAutoPanel && phase === 'cooking' && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="fixed bottom-8 left-1/2 z-30 w-80 -translate-x-1/2 rounded border-2 border-cheese bg-ink p-4 shadow-pixel"
+                    >
+                      <div className="flex items-center gap-2 mb-3">
+                        <motion.span className="text-2xl" animate={{ rotate: [0, 10, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
+                          🤖
+                        </motion.span>
+                        <p className="font-pixel text-sm text-cheese">{t('cooking.aiCooking')}</p>
+                      </div>
+                      <div className="space-y-1.5 mb-3">
+                        {[
+                          { label: 'Heat', key: '✓' },
+                          { label: 'Timing', key: autoProgress > 25 ? '✓' : '○' },
+                          { label: 'Flavor', key: autoProgress > 50 ? '✓' : '○' },
+                          { label: 'Nutrition', key: autoProgress > 75 ? '✓' : '○' },
+                        ].map((item) => (
+                          <div key={item.label} className="flex items-center gap-2">
+                            <span className={`font-terminal text-xs ${item.key === '✓' ? 'text-mint' : 'text-cream/30'}`}>
+                              {item.key}
+                            </span>
+                            <span className="font-terminal text-[10px] text-cream/60">
+                              {t('cooking.analyzing')}: {item.label}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-pixel text-[8px] text-cream/50">{t('cooking.aiOptimizing')}</span>
+                          <span className="font-pixel text-xs text-cheese">{autoProgress}%</span>
+                        </div>
+                        <div className="h-2 overflow-hidden rounded-full bg-cream/10">
+                          <motion.div className="h-full rounded-full bg-cheese" initial={{ width: 0 }} animate={{ width: `${autoProgress}%` }} />
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {phase === 'finishing' && (
+                  <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="font-terminal text-base text-cheese">
+                    {t('cooking.tasting')}
+                  </motion.p>
+                )}
+              </div>
+            </div>
+          </Container>
         </div>
-      </Container>
+
+        {/* ── AI Chef Advice Panel (side, desktop) ── */}
+        {phase === 'cooking' && (
+          <motion.aside
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3 }}
+            className="hidden w-72 flex-shrink-0 overflow-y-auto border-l border-cream/10 bg-ink-panel/60 px-4 py-8 lg:block"
+          >
+            {/* Panel header */}
+            <div className="mb-6 flex items-center gap-2 border-b border-cream/10 pb-3">
+              <div className="flex gap-px">
+                {[0, 1, 1, 0, 0, 1, 0, 1, 0, 0, 1, 1].map((v, i) => (
+                  <div key={i} className={`h-2 ${v ? 'w-1 bg-grape' : 'w-px bg-transparent'}`} />
+                ))}
+              </div>
+              <span className="font-mono text-[9px] text-grape/60 uppercase tracking-widest">
+                AI Chef Advice
+              </span>
+            </div>
+
+            {/* Heat recommendation */}
+            <div className="mb-5 rounded border border-tomato/20 bg-tomato/5 p-3">
+              <div className="flex items-center justify-between mb-2">
+                <span className="font-mono text-[8px] text-tomato/50 uppercase tracking-wider">
+                  Heat Control
+                </span>
+                <motion.span
+                  key={timelinePhase}
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  className="font-pixel text-sm text-tomato"
+                >
+                  {HEAT_RECOMMENDATIONS[timelinePhase] ?? HEAT_RECOMMENDATIONS.heat}
+                </motion.span>
+              </div>
+              {/* Heat bar */}
+              <div className="h-2 flex overflow-hidden rounded border border-cream/10">
+                {['bg-mint', 'bg-cheese', 'bg-tomato', 'bg-tomato'].map((c, i) => (
+                  <motion.div
+                    key={i}
+                    className={`${c} h-full flex-1`}
+                    animate={{
+                      opacity: timelinePhase === ['heat', 'sizzle', 'season', 'finish'][i] ? 1 : 0.25,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Cooking Strategy */}
+            <div className="mb-5 rounded border border-cream/10 bg-cream/3 p-3">
+              <span className="font-mono text-[8px] text-cream/40 uppercase tracking-wider">
+                Strategy
+              </span>
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={`${timelinePhase}-${strategyTip}`}
+                  initial={{ opacity: 0, x: 5 }}
+                  animate={{ opacity: 0.7, x: 0 }}
+                  exit={{ opacity: 0, x: -5 }}
+                  className="mt-2 font-sans text-xs leading-relaxed text-cream"
+                >
+                  {(STRATEGY_TIPS[timelinePhase] ?? STRATEGY_TIPS.heat)[strategyTip]}
+                </motion.p>
+              </AnimatePresence>
+            </div>
+
+            {/* Ingredients list */}
+            <div className="mb-5 rounded border border-cream/10 bg-cream/3 p-3">
+              <span className="font-mono text-[8px] text-cream/40 uppercase tracking-wider">
+                Ingredients
+              </span>
+              <div className="mt-2 flex flex-wrap gap-1">
+                {dish.map((ing) => (
+                  <motion.span
+                    key={ing.id}
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="inline-flex items-center gap-1 border border-cream/20 bg-cream/5 px-1.5 py-0.5 font-mono text-[9px] text-cream/60"
+                  >
+                    {ing.emoji} {ing.name}
+                  </motion.span>
+                ))}
+              </div>
+            </div>
+
+            {/* Flavor tips */}
+            <div className="rounded border border-grape/10 bg-grape/3 p-3">
+              <span className="font-mono text-[8px] text-grape/50 uppercase tracking-wider">
+                Flavor Tip
+              </span>
+              <p className="mt-2 font-sans text-xs leading-relaxed text-grape/70">
+                {timelinePhase === 'heat'
+                  ? 'Searing protein at high heat locks in juices and creates flavorful crust.'
+                  : timelinePhase === 'sizzle'
+                    ? 'Maintain steady heat — this develops deep umami and aromatic compounds.'
+                    : timelinePhase === 'season'
+                      ? 'Layer your seasonings: salt first, then aromatics, then finishing spices.'
+                      : 'Let the dish rest briefly. Flavors meld and texture settles for best results.'}
+              </p>
+            </div>
+
+            {/* AI identity footer */}
+            <div className="mt-6 pt-4 border-t border-cream/10">
+              <div className="flex items-center gap-2">
+                <div className="flex gap-px">
+                  {[1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0].map((v, i) => (
+                    <div key={i} className={`h-2 ${v ? 'w-1 bg-mint/60' : 'w-px bg-transparent'}`} />
+                  ))}
+                </div>
+                <span className="font-mono text-[8px] text-mint/40 uppercase tracking-widest">
+                  Pixel Chef AI v2.0
+                </span>
+              </div>
+              <p className="mt-1 font-mono text-[7px] text-cream/30 leading-relaxed">
+                Real-time cooking guidance powered by flavor pairing algorithms and your taste memory.
+              </p>
+            </div>
+          </motion.aside>
+        )}
+      </div>
     </section>
   )
 }
