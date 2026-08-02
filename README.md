@@ -7,11 +7,9 @@
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel-black?style=flat-square)](https://pixel-chef-ai.vercel.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 
-![Pixel Chef AI Preview](docs/screenshots/hero.png)
-
 ---
 
-## What is Pixel Chef AI?
+## What I Built
 
 Pixel Chef AI is a personal AI cooking companion that **learns how you eat**.
 
@@ -23,7 +21,34 @@ From opening your virtual fridge to saving your cooking memories, every interact
 
 ---
 
-## Why AI?
+## ✨ Features
+
+- 🤖 **AI Cooking Companion** — A floating Pixel AI sous-chef that chats, reacts, and guides you in real time
+- 🧊 **Interactive Pixel Kitchen** — Open the virtual fridge, browse ingredients, toss them into the pot
+- 🔥 **Real-time Cooking Simulation** — Countdown timer with random fire events, seasoning moments, and live AI chatter
+- 🧬 **Taste DNA System** — AI analyzes your cooking choices and builds a unique flavor personality profile
+- 📝 **AI Diary & Memory Timeline** — Auto-generated journal entries, cooking reflections, and future recipe suggestions
+- 📊 **Flavor DNA Radar** — 15-dimension flavor analysis visualized as an interactive SVG radar chart
+- 🏠 **Smart Kitchen Vision** — Designed for future smart refrigerators, ingredient recognition, and personalized meal planning
+- 🎮 **Pixel Game Feel** — 8-bit interface, Framer Motion animations, blinking chef, steam, and sparkles
+- 🌐 **i18n Ready** — English, 中文, and 日本語 built in
+- 📱 **Fully Responsive** — Polished from 375px mobile to ultrawide desktop
+
+---
+
+## 🚀 Demo
+
+**[Live Demo](https://pixel-chef-ai.vercel.app)** · **[GitHub Repo](https://github.com/vivayang911/pixel-chef-ai)**
+
+```
+Memory Kitchen → Ingredient Selection → AI Flavor Analysis → Cooking Guidance → Dish Creation → Taste Memory
+```
+
+**Try the 6-step AUTO DEMO** — watch Pixel do everything from ingredient selection to dish reveal, hands-free.
+
+---
+
+## Journey
 
 Traditional recipe apps answer:
 
@@ -45,98 +70,18 @@ Every meal becomes a learning experience. Your AI chef grows with you.
 
 ---
 
-## ✨ Features
+## 🔮 Future Vision
 
-- 🤖 **AI Cooking Companion** — A floating Pixel AI sous-chef that chats, reacts, and guides you in real time
-- 🧊 **Interactive Pixel Kitchen** — Open the virtual fridge, browse ingredients, toss them into the pot
-- 🔥 **Real-time Cooking Simulation** — Countdown timer with random fire events, seasoning moments, and live AI chatter
-- 🧬 **Taste DNA System** — AI analyzes your cooking choices and builds a unique flavor personality profile
-- 📝 **AI Diary & Memory Timeline** — Auto-generated journal entries, cooking reflections, and future recipe suggestions
-- 📊 **Flavor DNA Radar** — 15-dimension flavor analysis visualized as an interactive SVG radar chart
-- 🏠 **Smart Kitchen Vision** — Designed for future smart refrigerators, ingredient recognition, and personalized meal planning
-- 🎮 **Pixel Game Feel** — 8-bit interface, Framer Motion animations, blinking chef, steam, and sparkles
-- 🌐 **i18n Ready** — English, 中文, and 日本語 built in
-- 📱 **Fully Responsive** — Polished from 375px mobile to ultrawide desktop
+- 🤖 **Multimodal AI Chef** — Vision models recognize ingredients from real fridge cameras
+- 🏠 **Smart Refrigerator Integration** — Connect with smart appliances to track available food
+- 🛒 **Intelligent Grocery Planning** — Automatically generate shopping lists based on your nutrition goals
+- 💪 **Health Companion** — Adapt meals for fitness targets, weight management, and allergy needs
+- 🌍 **Cultural Taste Adaptation** — Learn and apply regional cooking preferences
+- 📲 **PWA + Social Sharing** — Share pixel recipe cards and cooking achievements
 
 ---
 
-## 🚀 Demo Experience
-
-```
-        Home (Memory Kitchen)
-              │  "Welcome back, Chef. I remember your taste."
-              ▼
-        ┌─────────────────────┐
-        │  Open Smart Fridge   │  ← Browse your virtual ingredient shelf
-        └─────────┬───────────┘
-                  ▼
-        ┌─────────────────────┐
-        │  AI Ingredient       │  ← Flavor DNA preview updates in real time
-        │  Recognition         │
-        └─────────┬───────────┘
-                  ▼
-        ┌─────────────────────┐
-        │  Choose Cooking      │  ← Stir-fry, steam, boil, deep-fry, roast, simmer
-        │  Method              │
-        └─────────┬───────────┘
-                  ▼
-        ┌─────────────────────┐
-        │  Flavor DNA Analysis │  ← AI predicts flavor balance across 15 dimensions
-        └─────────┬───────────┘
-                  ▼
-        ┌─────────────────────┐
-        │  Personal Recipe     │  ← AI creates a recipe just for you
-        │  Creation            │
-        └─────────┬───────────┘
-                  ▼
-        ┌─────────────────────┐
-        │  AI Cooking          │  ← Real-time simulation with fire events + AI chat
-        │  Assistant           │
-        └─────────┬───────────┘
-                  ▼
-        ┌─────────────────────┐
-        │  Dish Reveal         │  ← Cinematic score reveal + AI chef story
-        └─────────┬───────────┘
-                  ▼
-        ┌─────────────────────┐
-        │  Dish Memory Saved   │  ← Auto-saved to your Taste Memory timeline
-        └─────────────────────┘
-```
-
-**Try the 6-step AUTO DEMO** — watch Pixel do everything from ingredient selection to dish reveal, hands-free.
-
----
-
-## 📸 Screenshots
-
-### 🧊 Memory Kitchen
-The AI companion welcomes you back and remembers your taste profile.
-
-![Home](docs/screenshots/home.png)
-
-### 🤖 AI Cooking Studio
-Pick from the virtual fridge — Flavor DNA updates live as you build your dish.
-
-![Studio](docs/screenshots/studio.png)
-
-### 🔥 AI Cooking Simulation
-Real-time countdown with random cooking events and live AI sous-chef guidance.
-
-![Cooking](docs/screenshots/cooking.png)
-
-### 🧬 Taste Memory
-Your personal flavor timeline — AI reflections, diary entries, and future suggestions.
-
-![Memory](docs/screenshots/memory.png)
-
-### 🍽️ Dish Reveal
-Cinematic score breakdown — AI explains *why* it created this dish for you.
-
-![Result](docs/screenshots/result.png)
-
----
-
-## 🧠 AI Architecture
+## Technical Highlights
 
 ```
                     ┌─────────────────────────┐
@@ -209,11 +154,11 @@ Cinematic score breakdown — AI explains *why* it created this dish for you.
 | Styling     | Tailwind CSS v3 + Custom Theme      |
 | Fonts       | Press Start 2P · VT323 · Inter      |
 | State       | React useState / useMemo / useRef   |
-| Persistence | localStorage (tutorial flag only)   |
+| Persistence | localStorage (cooking history)      |
 
 ---
 
-## 📐 Project Structure
+## Architecture
 
 ```
 src/
@@ -269,17 +214,6 @@ SPA routing is already handled by `vercel.json`.
 npm run build
 # Upload the dist/ folder
 ```
-
----
-
-## 🔮 Future Vision
-
-- 🤖 **Multimodal AI Chef** — Vision models recognize ingredients from real fridge cameras
-- 🏠 **Smart Refrigerator Integration** — Connect with smart appliances to track available food
-- 🛒 **Intelligent Grocery Planning** — Automatically generate shopping lists based on your nutrition goals
-- 💪 **Health Companion** — Adapt meals for fitness targets, weight management, and allergy needs
-- 🌍 **Cultural Taste Adaptation** — Learn and apply regional cooking preferences
-- 📲 **PWA + Social Sharing** — Share pixel recipe cards and cooking achievements
 
 ---
 
